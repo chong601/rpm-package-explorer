@@ -3,6 +3,7 @@ import io
 from typing import Union
 
 
+# Use more memory_efficient buffered read method
 def read_data(file_object: Union[io.FileIO, io.BytesIO], read_size=128*1024):
     while True:
         data = file_object.read(read_size)

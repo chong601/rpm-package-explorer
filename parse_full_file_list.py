@@ -7,8 +7,11 @@ import re
 
 from rpm_package_explorer.enums import State
 from rpm_package_explorer.exceptions import InvalidState, UnsupportedFileListException
+from rpm_package_explorer.io_handler import read_data
+from rpm_package_explorer.utils import open_archive_file
 
-SUPPORTED_VERSIONS = [2]
+SUPPORTED_FILETIMELIST_VERSIONS = [2]
+SUPPORTED_DB_VERSIONS = [10]
 
 # Dict for state mapping
 # **Could** use finite-state-engine, but that's a comp-sci hellhole that I'm not ready to get into it.
@@ -23,16 +26,17 @@ state_map = {
 if __name__ == '__main__':
     repodata = {}
     extensions = {}
-    checksums = {}
-    with open('repo_data/fullfiletimelist', encoding='utf8') as fullfilelist:
+
+    with open('repo_data/fullfiletimelist-rocky', encoding='utf8') as fullfiletimelist:
         # Divide state into 4
+        # 0 when started
         # 1 when data version is parsed
         # 2 when file list is parsed
         # 3 when checksums data are read
         state = State.STARTED
         count = 0
 
-        for data in fullfilelist.readlines():
+        for data in fullfiletimelist.readlines():
             count += 1
             # Strip all leading and trailling whitespaces
             data = data.strip()
@@ -76,27 +80,24 @@ if __name__ == '__main__':
             try:
                 if state == State.VERSION:
                     # do version check
-                    if int(re_match['version']) not in SUPPORTED_VERSIONS:
-                        raise UnsupportedFileListException(SUPPORTED_VERSIONS)
+                    if int(re_match['version']) not in SUPPORTED_FILETIMELIST_VERSIONS:
+                        raise UnsupportedFileListException(SUPPORTED_FILETIMELIST_VERSIONS)
                     # print(re_match)
 
                 elif state == State.FILE_LIST:
-                    # do check
+                    # Ignore link and directories
                     if re_match['path'].find('repodata') != -1 and re_match['type'] == 'f':
-                        file_ext = re_match['path'].rsplit('.', 1)[-1]
-                        extensions.update({file_ext: extensions.get(file_ext, 0) + 1})
-                        if file_ext == 'gz':
-                            file = gzip.open(re_match['path'])
-
-                        elif file_ext == 'bz2':
-                            file = bz2.open(re_match['path'])
-
-                        elif file_ext == 'xz':
-                            file = lzma.open(re_match['path'])
-
+                        with open_archive_file(re_match['path']) as file:
+                            for db_data in read_data(file):
+                                hf.update(db_data)
+                            file_hash = hf.hexdigest()
+                    pass
                 elif state == State.CHECKSUMS:
                     # process checksum data
+                    checksums = {}
                     checksums.update({re_match['repo_path']: re_match['repo_hash']})
+                    for repo_path, repo_hash in checksums.items():
+                        print(repo_path, repo_hash)
 
-            except InvalidState as e:
+            except Exception as e:
                 print(f'Task aborted because of {e}')
