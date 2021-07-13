@@ -11,7 +11,8 @@ SUPPORTED_FILETIMELIST_VERSIONS = [2]
 SUPPORTED_DB_VERSIONS = [10]
 
 # Dict for state mapping
-# **Could** use finite-state-engine, but that's a comp-sci hellhole that I'm not ready to get into it.
+# **Could** use finite-state-engine, but that's a comp-sci hellhole that I'm
+# not ready to get into it.
 # This will do, as long there's no major changes.
 state_map = {
     State.STARTED: State.VERSION,
