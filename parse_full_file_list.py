@@ -1,14 +1,11 @@
-import bz2
-import gzip
 import hashlib
 import logging
-import lzma
 import re
 
 from rpm_package_explorer.enums import State
 from rpm_package_explorer.exceptions import InvalidState, UnsupportedFileListException
 from rpm_package_explorer.io_handler import read_data
-from rpm_package_explorer.utils import open_archive_file
+from rpm_package_explorer.utils import open_file
 
 SUPPORTED_FILETIMELIST_VERSIONS = [2]
 SUPPORTED_DB_VERSIONS = [10]
@@ -87,7 +84,7 @@ if __name__ == '__main__':
                 elif state == State.FILE_LIST:
                     # Ignore link and directories
                     if re_match['path'].find('repodata') != -1 and re_match['type'] == 'f':
-                        with open_archive_file(re_match['path']) as file:
+                        with open_file(re_match['path']) as file:
                             for db_data in read_data(file):
                                 hf.update(db_data)
                             file_hash = hf.hexdigest()
@@ -96,7 +93,7 @@ if __name__ == '__main__':
                     # process checksum data
                     checksums = {}
                     checksums.update({re_match['repo_path']: re_match['repo_hash']})
-                    for repo_path, repo_hash in checksums.items():
+                    for repo_path, repo_hash in list(checksums.items()):
                         print(repo_path, repo_hash)
 
             except Exception as e:
