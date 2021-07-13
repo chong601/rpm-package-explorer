@@ -1,6 +1,7 @@
 import bz2
 import gzip
 import lzma
+import sqlite3
 
 
 def open_file(filename: str, mode='r'):
@@ -14,3 +15,9 @@ def open_file(filename: str, mode='r'):
     else:
         return open(filename, mode)
 
+
+def map_row_to_dict(cursor: sqlite3.Cursor, row_data):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row_data[idx]
+    return d
