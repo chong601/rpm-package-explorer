@@ -4,7 +4,7 @@ import lzma
 import sqlite3
 
 
-def open_file(filename: str, mode='r'):
+def open_file(filename: str, mode='r', encoding=None):
     file_ext = filename.rsplit('.', 1)[-1]
     if file_ext == 'gz':
         return gzip.open(filename)
@@ -12,6 +12,8 @@ def open_file(filename: str, mode='r'):
         return bz2.open(filename)
     elif file_ext == 'xz':
         return lzma.open(filename)
+    elif encoding is not None:
+        return open(filename, mode, encoding=encoding)
     else:
         return open(filename, mode)
 
