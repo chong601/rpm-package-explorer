@@ -1,4 +1,5 @@
 import declxml as dxml
+from rpm_package_explorer.utils import open_file
 
 
 def parse_repomd(filename: str):
@@ -206,3 +207,46 @@ def parse_primary(filename: str):
 
     metadata_processor = dxml.dictionary('metadata', [package_processor])
     return dxml.parse_from_file(metadata_processor, filename)
+
+
+def parse_groups(filename: str):
+    # Oh cock this one has fucking DTD
+    # So I have few ways to do it:
+    # - ignore comps file forever (which I prefer **not** to)
+    # - compile libcomps and use that instead (too much effort)
+    # - do it the hard way and learn lxml (ugh)
+    # - or jank it
+    #
+    # HMMMMMMMMMMMMMMMMMMM.
+    
+    # BEGIN jank
+    new_filename = filename.replace('comps', 'compsnew')
+    with open_file(filename, encoding='utf8') as src_file, open_file(new_filename, 'w', encoding='utf8') as dest_file:
+        for line in src_file.readlines():
+            if line.find('DOCTYPE comps') != -1 or line.find('DTD Comps info') != -1 or line.find('comps.dtd') != -1:
+                continue
+            dest_file.writelines(line.replace('xml:', ''))
+    # END jank
+
+    group_processor = dxml.array(dxml.dictionary('group', [
+        dxml.string('id'),
+        dxml.array(dxml.dictionary('name', [
+            dxml.string('.', 'lang', default='en', required=False),
+            dxml.string('.', alias='content')
+        ], alias='entry'), alias='name'),
+        dxml.array(dxml.dictionary('description', [
+            dxml.string('.', 'lang', default='en', required=False),
+            dxml.string('.', alias='content')
+        ], alias='entry'), alias='description'),
+        dxml.boolean('default'),
+        dxml.boolean('uservisible'),
+        dxml.dictionary('packagelist', [
+            dxml.array(dxml.dictionary('packagereq', [
+                dxml.string('.', 'type'),
+                dxml.string('.', alias='package_name')
+            ]))
+        ])
+    ]))
+    comps_processor = dxml.dictionary('comps', [group_processor])
+
+    return dxml.parse_from_file(comps_processor, new_filename)
