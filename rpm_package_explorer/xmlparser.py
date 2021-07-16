@@ -218,7 +218,7 @@ def parse_groups(filename: str):
     # - or jank it
     #
     # HMMMMMMMMMMMMMMMMMMM.
-    
+
     # BEGIN jank
     new_filename = filename.replace('comps', 'compsnew')
     with open_file(filename, encoding='utf8') as src_file, open_file(new_filename, 'w', encoding='utf8') as dest_file:
@@ -228,7 +228,8 @@ def parse_groups(filename: str):
             dest_file.writelines(line.replace('xml:', ''))
     # END jank
 
-    group_processor = dxml.array(dxml.dictionary('group', [
+    # header_processor data are shared across group, category and environment
+    header_processor: list = [
         dxml.string('id'),
         dxml.array(dxml.dictionary('name', [
             dxml.string('.', 'lang', default='en', required=False),
@@ -237,7 +238,11 @@ def parse_groups(filename: str):
         dxml.array(dxml.dictionary('description', [
             dxml.string('.', 'lang', default='en', required=False),
             dxml.string('.', alias='content')
-        ], alias='entry'), alias='description'),
+        ], alias='entry'), alias='description')
+    ]
+
+    group_child_elem = header_processor.copy()
+    group_child_elem.extend([
         dxml.boolean('default'),
         dxml.boolean('uservisible'),
         dxml.dictionary('packagelist', [
@@ -246,7 +251,24 @@ def parse_groups(filename: str):
                 dxml.string('.', alias='package_name')
             ]))
         ])
-    ]))
-    comps_processor = dxml.dictionary('comps', [group_processor])
+    ])
+    group_processor = dxml.array(dxml.dictionary('group', group_child_elem))
 
+    groupid_elem = [dxml.array(dxml.string('groupid'))]
+    category_child_elem = header_processor.copy()
+    category_child_elem.extend([
+        dxml.integer('display_order'),
+        dxml.dictionary('grouplist', groupid_elem)
+    ])
+    category_processor = dxml.array(dxml.dictionary('category', category_child_elem))
+
+    environment_child_elem = header_processor.copy()
+    environment_child_elem.extend([
+        dxml.integer('display_order'),
+        dxml.dictionary('grouplist', groupid_elem),
+        dxml.dictionary('optionlist', groupid_elem)
+    ])
+    environment_processor = dxml.array(dxml.dictionary('environment', environment_child_elem))
+
+    comps_processor = dxml.dictionary('comps', [group_processor, category_processor, environment_processor])
     return dxml.parse_from_file(comps_processor, new_filename)
