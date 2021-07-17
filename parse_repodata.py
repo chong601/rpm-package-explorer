@@ -1,8 +1,10 @@
 import os
 import sqlite3
+import shutil
 
 from contextlib import closing
-from rpm_package_explorer.xmlparser import parse_repomd
+from rpm_package_explorer.xmlparser import parse_groups, parse_repomd, parse_primary, parse_filelists, \
+                                           parse_otherdata, parse_updateinfo, rearrange_data
 from rpm_package_explorer.utils import open_file, map_row_to_dict
 from rpm_package_explorer.io_handler import read_data
 
@@ -11,8 +13,10 @@ WORKDIR = 'workdir'
 SUPPORTED_DATABASE_VERSIONS = [10]
 # Define which to read first
 
-PARSE_DATA = ['primary', 'filelists', 'other', 'primary_db', 'filelists_db', 'other_db', 'group',
+PARSE_DATA = ['primary_db', 'filelists_db', 'other_db', 'primary', 'filelists', 'other', 'group',
               'group_gz', 'updateinfo']
+
+SKIP_PARSE = ['primary_db', 'other_db', 'filelists_db']
 
 PRIORITY = {
     'primary': ['primary_db', 'primary'],
@@ -22,10 +26,13 @@ PRIORITY = {
     'updateinfo': ['updateinfo']
 }
 
+parse_data = [x for x in PARSE_DATA if x not in SKIP_PARSE]
+
 # Set up directories
 real_workdir = os.path.join(os.getcwd(), WORKDIR)
-if not os.path.isdir(real_workdir):
-    os.mkdir(real_workdir)
+if os.path.isdir(real_workdir):
+    shutil.rmtree(real_workdir)
+os.mkdir(real_workdir)
 
 real_repo_data = os.path.join(os.getcwd())
 
@@ -33,30 +40,33 @@ real_repo_data = os.path.join(os.getcwd())
 repomd_data = parse_repomd('repodata/repomd.xml')
 
 # Start filtering data
-all_repo_type = repomd_data.keys()
 for priority_list in PRIORITY.values():
     found = False
     for p in priority_list:
-        if p in all_repo_type and not found:
+        if p in SKIP_PARSE:
+            repomd_data.pop(p)
+        elif p in parse_data and not found:
             found = True
             continue
         else:
-            PARSE_DATA.remove(p)
+            repomd_data.pop(p)
+            parse_data.remove(p)
 
 processed_data = {}
 
 # Start processing files listed in repomd.xml
-for repo_type, data in repomd_data.items():
+for repo_type in parse_data:
     # Do quick and dirty data detection
     # TODO: trim this to a one-liner
-    if data['open_checksum_hash_type'] is not None and \
-            data['open_checksum_hash'] is not None and \
-            data['open_size'] is not None:
+    data = repomd_data.get(repo_type)
+    if 'open_checksum_hash_type' in data and \
+       'open_checksum_hash' in data and \
+       'open_size' in data:
         is_archive = True
     else:
         is_archive = False
     # TODO: trim this to a one-liner
-    if data['database_version'] is not None:
+    if 'database_version' in data:
         is_db = False
         if data['database_version'] in SUPPORTED_DATABASE_VERSIONS:
             is_db = True
@@ -93,11 +103,13 @@ try:
                 for table in tables:
                     cursor.execute(f'select * from {table}')
                     # TODO: process data
-                    cursor.row_factory
+                    cursor.row_factory = map_row_to_dict
                     for row in cursor.fetchall():
-                        print(f'{repo_category} has {map_row_to_dict(cursor, row)}')
+                        print(f'{repo_category} has {row}')
         elif repo_category == 'primary':
-            pass
+            extracted_data = parse_primary(filename)
+            for d in extracted_data.values():
+                print(f'{repo_category} has {d}')
         elif repo_category == 'filelists_db':
             # SQLite doesn't close the "normal" way, so it needs slightly insane way to really close connection.
             with closing(sqlite3.connect(filename)) as connection, connection, closing(connection.cursor()) as cursor:
@@ -107,10 +119,13 @@ try:
                 for table in tables:
                     cursor.execute(f'select * from {table}')
                     # TODO: process data
+                    cursor.row_factory = map_row_to_dict
                     for row in cursor.fetchall():
-                        print(f'{repo_category} has {map_row_to_dict(cursor, row)}')
+                        print(f'{repo_category} has {row}')
         elif repo_category == 'filelists':
-            pass
+            extracted_data = parse_filelists(filename)
+            for d in extracted_data.values():
+                print(f'{repo_category} has {d}')
         elif repo_category == 'other_db':
             # SQLite doesn't close the "normal" way, so it needs slightly insane way to really close connection.
             with closing(sqlite3.connect(filename)) as connection, connection, closing(connection.cursor()) as cursor:
@@ -120,18 +135,25 @@ try:
                 for table in tables:
                     cursor.execute(f'select * from {table}')
                     # TODO: process data
+                    cursor.row_factory = map_row_to_dict
                     for row in cursor.fetchall():
-                        print(f'{repo_category} has {map_row_to_dict(cursor, row)}')
+                        print(f'{repo_category} has {row}')
         elif repo_category == 'other':
-            pass
+            extracted_data = parse_otherdata(filename)
+            for d in extracted_data.values():
+                print(f'{repo_category} has {d}')
         elif repo_category == 'group' or repo_category == 'group_gz':
-            pass
+            extracted_data = parse_groups(filename)
+            for d in extracted_data.values():
+                print(f'{repo_category} has {d}')
         elif repo_category == 'updateinfo':
-            pass
+            extracted_data = parse_updateinfo(filename)
+            for d in extracted_data.values():
+                print(f'{repo_category} has {d}')
         else:
-            print(f'Unable to process {repo_category}. Please raise an issue')
+            print(f'No handler for {repo_category} available. Please raise an issue')
 except Exception as e:
     print(e)
 # Clean up workdir
 
-
+shutil.rmtree(real_workdir)
