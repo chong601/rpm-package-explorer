@@ -35,7 +35,7 @@ You can help sponsoring this project through [Buy me a Coffee™](https://www.bu
 - offset the cloud hosting costs (those ain't cheap!)
 - do more open-source projects that would help other people
 
-OR if you have decent Python skills ~~and don't mind reading spaghetti my spaghetti code~~, feel free to fork this project, add the feature that would be nice to have and make a pull request.
+OR if you have decent Python skills ~~and don't mind reading my spaghetti code~~, feel free to fork this project, add the feature that would be nice to have and make a pull request.
 
 # License
 rpm-package-explorer is released under the MIT License. Refer to [LICENSE](./LICENSE) file for the full license text.
