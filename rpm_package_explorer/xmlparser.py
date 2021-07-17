@@ -3,6 +3,21 @@ from rpm_package_explorer.utils import open_file
 
 
 def parse_repomd(filename: str):
+    """
+    Read and return the repomd data
+
+    Data returned will be in the form of Python dictionary such as:s
+    {
+        type: {
+            checksum_hash_type: hash_type,
+            checksum_hash: hash,
+            ...
+        }
+    }
+
+    :param filename: The repomd file name
+    :returns: parsed XML data in the form of a Python dictionary
+    """
     data_processor = dxml.array(dxml.dictionary('data', [
         dxml.string('.', attribute='type'),
         dxml.string('checksum', 'type', alias='checksum_hash_type'),
@@ -20,7 +35,9 @@ def parse_repomd(filename: str):
 
 
 def rearrange_data(xml_dict: dict, key_name):
-    # Recast to dict rather than ItemsView
+    """
+    Converts a list of Python dictionary into just dictionary with key_name as the key name
+    """
     new_dict = {}
     # .values always return an array even for single item, so we get the first element
     dict_value = list(xml_dict.values())[0]
@@ -34,6 +51,7 @@ def rearrange_data(xml_dict: dict, key_name):
 
 
 def parse_filelists(filename: str):
+    """Parse filelists XML data into Python dictionary form"""
     package_processor = dxml.array(dxml.dictionary(
         'package', [
             dxml.string('.', 'pkgid'),
@@ -53,6 +71,7 @@ def parse_filelists(filename: str):
 
 
 def parse_otherdata(filename: str):
+    """Parse other xml data into Python dictionary form"""
     package_processor = dxml.array(dxml.dictionary(
         'package', [
             dxml.string('.', 'pkgid'),
@@ -73,6 +92,7 @@ def parse_otherdata(filename: str):
 
 
 def parse_updateinfo(filename: str):
+    """Parse updateinfo data into Python dictionary form"""
     reference_processor = dxml.dictionary('reference', [
         dxml.string('.', 'href'),
         dxml.string('.', 'id'),
@@ -122,6 +142,7 @@ def parse_updateinfo(filename: str):
 
 
 def parse_primary(filename: str):
+    """Parse primary XML data and returns it in Python dictionary form"""
     version_processor = dxml.dictionary('version', [
         dxml.integer('.', 'epoch', alias='epoch'),
         dxml.string('.', 'ver', alias='ver'),
@@ -210,6 +231,9 @@ def parse_primary(filename: str):
 
 
 def parse_groups(filename: str):
+    """
+    Parse comps data and returns it in Python dictionary form
+    """
     # Oh cock this one has fucking DTD
     # So I have few ways to do it:
     # - ignore comps file forever (which I prefer **not** to)
