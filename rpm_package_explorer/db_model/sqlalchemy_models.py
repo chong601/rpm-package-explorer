@@ -4,7 +4,40 @@ from sqlalchemy import Text, Integer, Boolean, Column, TIMESTAMP
 
 
 @dataclass
+class DBInfo(object):
+    __tablename__ = 'db_info'
+
+    dbinfo_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
+    repo_category = Column(Text, comment='Repository category that this row represents')
+    dbversion = Column(Integer, comment='DB version')
+    checksum = Column(Text, comment='Hash for the XML file')
+
+    @staticmethod
+    def _get_required_columns():
+        return ['repo_category',
+                'dbversion',
+                'checksum']
+
+    def __init__(self, **kwargs):
+        # FUUUUUUUUUUUCK
+        if len(kwargs) == 0:
+            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
+                                 f'{", ".join(self._get_required_columns())}')
+        else:
+            missing_attr = []
+            for attr in self._get_required_columns():
+                if attr not in kwargs:
+                    missing_attr.append(attr)
+
+            if len(missing_attr) > 0:
+                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+
+@dataclass
 class Packages(object):
+    """Represents the `packages` table"""
     __tablename__ = 'packages'
 
     pkg_uuid: str = Column(Text, primary_key=True, autoincrement=True, default=uuid.uuid4)
@@ -38,6 +71,7 @@ class Packages(object):
 
     @staticmethod
     def _get_required_columns():
+        """Returns the required columns for this table"""
         return ['pkgKey',
                 'pkgId',
                 'name',
@@ -66,6 +100,10 @@ class Packages(object):
                 'checksum_type']
 
     def __init__(self, **kwargs):
+        """Initialize package object based on the passed in keyword arguments
+
+        :param **kwargs: Keyword arguments containing package data to be inserted into the database
+        """
         # FUUUUUUUUUUUCK
         if len(kwargs) == 0:
             raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
@@ -82,31 +120,84 @@ class Packages(object):
             setattr(self, k, v)
 
 
-class Conflicts():
+@dataclass
+class Conflicts(object):
     __tablename__ = 'conflicts'
 
     conflict_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
+    pkgKey = Column(Integer)
     name = Column(Text, comment='Package name')
     flags = Column(Text, comment='Package conflict comparison flag')
     epoch = Column(Integer, comment='Package epoch that the package conflicts with')
     version = Column(Integer, comment='Package version that the package conflicts with')
     release = Column(Integer, comment='Package release that the package conflicts with')
-    pkgKey = Column(Integer)
+
+    @staticmethod
+    def _get_required_columns():
+        return ['pkgKey',
+                'name',
+                'flags',
+                'epoch',
+                'version',
+                'release']
+
+    def __init__(self, **kwargs):
+        # FUUUUUUUUUUUCK
+        if len(kwargs) == 0:
+            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
+                                 f'{", ".join(self._get_required_columns())}')
+        else:
+            missing_attr = []
+            for attr in self._get_required_columns():
+                if attr not in kwargs:
+                    missing_attr.append(attr)
+
+            if len(missing_attr) > 0:
+                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
 
-class Enhances():
+@dataclass
+class Enhances(object):
     __tablename__ = 'enhances'
 
     enhance_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
+    pkgKey = Column(Integer)
     name = Column(Text, comment='Package name')
     flags = Column(Text, comment='Package conflict comparison flag')
     epoch = Column(Integer, comment='Package epoch that the package enhances')
     version = Column(Integer, comment='Package version that the package enhances')
     release = Column(Integer, comment='Package release that the package enhances')
-    pkgKey = Column(Integer)
+
+    @staticmethod
+    def _get_required_columns():
+        return ['pkgKey',
+                'name',
+                'flags',
+                'epoch',
+                'version',
+                'release']
+
+    def __init__(self, **kwargs):
+        # FUUUUUUUUUUUCK
+        if len(kwargs) == 0:
+            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
+                                 f'{", ".join(self._get_required_columns())}')
+        else:
+            missing_attr = []
+            for attr in self._get_required_columns():
+                if attr not in kwargs:
+                    missing_attr.append(attr)
+
+            if len(missing_attr) > 0:
+                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
 
-class Files():
+@dataclass
+class Files(object):
     """Class that represents the files table
 
     Note: This table will follow the saner approach of listing each file in its own row
@@ -116,79 +207,258 @@ class Files():
     __tablename__ = 'files'
 
     file_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
+    pkgKey = Column(Integer)
     name = Column(Text, comment='File name')
     type = Column(Text, comment='File type')
-    pkgKey = Column(Integer)
+
+    @staticmethod
+    def _get_required_columns():
+        return ['pkgKey',
+                'name',
+                'type']
+
+    def __init__(self, **kwargs):
+        # FUUUUUUUUUUUCK
+        if len(kwargs) == 0:
+            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
+                                 f'{", ".join(self._get_required_columns())}')
+        else:
+            missing_attr = []
+            for attr in self._get_required_columns():
+                if attr not in kwargs:
+                    missing_attr.append(attr)
+
+            if len(missing_attr) > 0:
+                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
 
-class Obsoletes():
+@dataclass
+class Obsoletes(object):
     __tablename__ = 'obsoletes'
 
     enhance_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
+    pkgKey = Column(Integer)
     name = Column(Text, comment='Package name')
     flags = Column(Text, comment='Package obsolete comparison flag')
     epoch = Column(Integer, comment='Package epoch that the package obsoletes')
     version = Column(Integer, comment='Package version that the package obsoletes')
     release = Column(Integer, comment='Package release that the package obsoletes')
-    pkgKey = Column(Integer)
+
+    @staticmethod
+    def _get_required_columns():
+        return ['pkgKey',
+                'name',
+                'flags',
+                'epoch',
+                'version',
+                'release']
+
+    def __init__(self, **kwargs):
+        # FUUUUUUUUUUUCK
+        if len(kwargs) == 0:
+            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
+                                 f'{", ".join(self._get_required_columns())}')
+        else:
+            missing_attr = []
+            for attr in self._get_required_columns():
+                if attr not in kwargs:
+                    missing_attr.append(attr)
+
+            if len(missing_attr) > 0:
+                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
 
-class Provides():
+@dataclass()
+class Provides(object):
     __tablename__ = 'provides'
 
     enhance_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
+    pkgKey = Column(Integer)
     name = Column(Text, comment='Package name')
     flags = Column(Text, comment='Package obsolete comparison flag')
     epoch = Column(Integer, comment='Package epoch that the package provides')
     version = Column(Integer, comment='Package version that the package provides')
     release = Column(Integer, comment='Package release that the package provides')
-    pkgKey = Column(Integer)
+
+    @staticmethod
+    def _get_required_columns():
+        return ['pkgKey',
+                'name',
+                'flags',
+                'epoch',
+                'version',
+                'release']
+
+    def __init__(self, **kwargs):
+        # FUUUUUUUUUUUCK
+        if len(kwargs) == 0:
+            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
+                                 f'{", ".join(self._get_required_columns())}')
+        else:
+            missing_attr = []
+            for attr in self._get_required_columns():
+                if attr not in kwargs:
+                    missing_attr.append(attr)
+
+            if len(missing_attr) > 0:
+                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
 
-class Recommends():
+@dataclass
+class Recommends(object):
     __tablename__ = 'Recommends'
 
     enhance_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
+    pkgKey = Column(Integer)
     name = Column(Text, comment='Package name')
     flags = Column(Text, comment='Package obsolete comparison flag')
     epoch = Column(Integer, comment='Package epoch that the package provides')
     version = Column(Integer, comment='Package version that the package provides')
     release = Column(Integer, comment='Package release that the package provides')
-    pkgKey = Column(Integer)
+
+    @staticmethod
+    def _get_required_columns():
+        return ['pkgKey',
+                'name',
+                'flags',
+                'epoch',
+                'version',
+                'release']
+
+    def __init__(self, **kwargs):
+        # FUUUUUUUUUUUCK
+        if len(kwargs) == 0:
+            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
+                                 f'{", ".join(self._get_required_columns())}')
+        else:
+            missing_attr = []
+            for attr in self._get_required_columns():
+                if attr not in kwargs:
+                    missing_attr.append(attr)
+
+            if len(missing_attr) > 0:
+                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
 
-class Requires():
+@dataclass
+class Requires(object):
     __tablename__ = 'requires'
 
     enhance_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
+    pkgKey = Column(Integer)
     name = Column(Text, comment='Package name')
     flags = Column(Text, comment='Package obsolete comparison flag')
     epoch = Column(Integer, comment='Package epoch that the package provides')
     version = Column(Integer, comment='Package version that the package provides')
     release = Column(Integer, comment='Package release that the package provides')
-    pkgKey = Column(Integer)
     pre = Column(Boolean, comment='Signals if the requirement is a prerequisite for preinstallation')
 
+    @staticmethod
+    def _get_required_columns():
+        return ['pkgKey',
+                'name',
+                'flags',
+                'epoch',
+                'version',
+                'release',
+                'pre']
 
-class Suggests():
+    def __init__(self, **kwargs):
+        # FUUUUUUUUUUUCK
+        if len(kwargs) == 0:
+            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
+                                 f'{", ".join(self._get_required_columns())}')
+        else:
+            missing_attr = []
+            for attr in self._get_required_columns():
+                if attr not in kwargs:
+                    missing_attr.append(attr)
+
+            if len(missing_attr) > 0:
+                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+
+@dataclass
+class Suggests(object):
     __tablename__ = 'Suggests'
 
     enhance_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
+    pkgKey = Column(Integer)
     name = Column(Text, comment='Package name')
     flags = Column(Text, comment='Package obsolete comparison flag')
     epoch = Column(Integer, comment='Package epoch that the package provides')
     version = Column(Integer, comment='Package version that the package provides')
     release = Column(Integer, comment='Package release that the package provides')
-    pkgKey = Column(Integer)
+
+    @staticmethod
+    def _get_required_columns():
+        return ['pkgKey',
+                'name',
+                'flags',
+                'epoch',
+                'version',
+                'release']
+
+    def __init__(self, **kwargs):
+        # FUUUUUUUUUUUCK
+        if len(kwargs) == 0:
+            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
+                                 f'{", ".join(self._get_required_columns())}')
+        else:
+            missing_attr = []
+            for attr in self._get_required_columns():
+                if attr not in kwargs:
+                    missing_attr.append(attr)
+
+            if len(missing_attr) > 0:
+                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
 
-class Supplements():
+@dataclass
+class Supplements(object):
     __tablename__ = 'supplements'
 
     enhance_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
+    pkgKey = Column(Integer)
     name = Column(Text, comment='Package name')
     flags = Column(Text, comment='Package obsolete comparison flag')
     epoch = Column(Integer, comment='Package epoch that the package provides')
     version = Column(Integer, comment='Package version that the package provides')
     release = Column(Integer, comment='Package release that the package provides')
-    pkgKey = Column(Integer)
+
+    @staticmethod
+    def _get_required_columns():
+        return ['pkgKey',
+                'name',
+                'flags',
+                'epoch',
+                'version',
+                'release']
+
+    def __init__(self, **kwargs):
+        # FUUUUUUUUUUUCK
+        if len(kwargs) == 0:
+            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
+                                 f'{", ".join(self._get_required_columns())}')
+        else:
+            missing_attr = []
+            for attr in self._get_required_columns():
+                if attr not in kwargs:
+                    missing_attr.append(attr)
+
+            if len(missing_attr) > 0:
+                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
+        for k, v in kwargs.items():
+            setattr(self, k, v)
