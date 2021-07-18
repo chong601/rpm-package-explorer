@@ -1,36 +1,85 @@
-from sqlalchemy import Text, Integer, Boolean, Column, TIMESTAMP
 import uuid
+from dataclasses import dataclass
+from sqlalchemy import Text, Integer, Boolean, Column, TIMESTAMP
 
 
-class Packages():
+@dataclass
+class Packages(object):
     __tablename__ = 'packages'
-    pkg_uuid = Column(Text, primary_key=True, autoincrement=True, default=uuid.uuid4)
-    pkgKey = Column(Integer, autoincrement=False, primary_key=True, comment='Primary key for the packages')
-    pkgId = Column(Text, nullable=False, comment='The package ID of the package')
-    name = Column(Text, nullable=False, comment='Package name')
-    arch = Column(Text, nullable=False, comment='Architecture the package is for')
-    version = Column(Text, nullable=False, comment='Package version')
-    epoch = Column(Integer, nullable=False, comment='Package epoch')
-    release = Column(Text, nullable=False, comment='Package release')
-    summary = Column(Text, nullable=False, comment='Package summary')
-    description = Column(Text, nullable=False, comment='Package description')
-    url = Column(Text, comment='Package upstream URL')
-    time_file = Column(TIMESTAMP, comment='File timestamp')
-    time_build = Column(TIMESTAMP, comment='File build time')
-    rpm_license = Column(Text, comment='Package license')
-    rpm_vendor = Column(Text)
-    rpm_group = Column(Text)
-    rpm_buildhost = Column(Text)
-    rpm_sourcerpm = Column(Text, comment='Source RPM file location')
-    rpm_header_start = Column(Integer)
-    rpm_header_end = Column(Integer)
-    rpm_packager = Column(Text)
-    size_package = Column(Integer)
-    size_installed = Column(Integer)
-    size_archive = Column(Integer)
-    location_href = Column(Text)
-    location_base = Column(Text)
-    checksum_type = Column(Text)
+
+    pkg_uuid: str = Column(Text, primary_key=True, autoincrement=True, default=uuid.uuid4)
+    pkgKey: int = Column(Integer, autoincrement=False, primary_key=True, comment='Primary key for the packages')
+    # Also used as a package hash
+    pkgId: str = Column(Text, nullable=False, comment='The package ID of the package')
+    name: str = Column(Text, nullable=False, comment='Package name')
+    arch: str = Column(Text, nullable=False, comment='Architecture the package is for')
+    version: str = Column(Text, nullable=False, comment='Package version')
+    epoch: int = Column(Integer, nullable=False, comment='Package epoch')
+    release: str = Column(Text, nullable=False, comment='Package release')
+    summary: str = Column(Text, nullable=False, comment='Package summary')
+    description: str = Column(Text, nullable=False, comment='Package description')
+    url: str = Column(Text, comment='Package upstream URL')
+    time_file: int = Column(TIMESTAMP, comment='File timestamp')
+    time_build: int = Column(TIMESTAMP, comment='File build time')
+    rpm_license: str = Column(Text, comment='Package license')
+    rpm_vendor: str = Column(Text)
+    rpm_group: str = Column(Text)
+    rpm_buildhost: str = Column(Text)
+    rpm_sourcerpm: str = Column(Text, comment='Source RPM file location')
+    rpm_header_start: int = Column(Integer)
+    rpm_header_end: int = Column(Integer)
+    rpm_packager: str = Column(Text)
+    size_package: int = Column(Integer)
+    size_installed: int = Column(Integer)
+    size_archive: int = Column(Integer)
+    location_href: str = Column(Text)
+    location_base: str = Column(Text)
+    checksum_type: str = Column(Text)
+
+    @staticmethod
+    def _get_required_columns():
+        return ['pkgKey',
+                'pkgId',
+                'name',
+                'arch',
+                'version',
+                'epoch',
+                'release',
+                'summary',
+                'description',
+                'url',
+                'time_file',
+                'time_build',
+                'rpm_license',
+                'rpm_vendor',
+                'rpm_group',
+                'rpm_buildhost',
+                'rpm_sourcerpm',
+                'rpm_header_start',
+                'rpm_header_end',
+                'rpm_packager',
+                'size_package',
+                'size_installed',
+                'size_archive',
+                'location_href',
+                'location_base',
+                'checksum_type']
+
+    def __init__(self, **kwargs):
+        # FUUUUUUUUUUUCK
+        if len(kwargs) == 0:
+            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
+                                 f'{", ".join(self._get_required_columns())}')
+        else:
+            missing_attr = []
+            for attr in self._get_required_columns():
+                if attr not in kwargs:
+                    missing_attr.append(attr)
+
+            if len(missing_attr) > 0:
+                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
 
 class Conflicts():
