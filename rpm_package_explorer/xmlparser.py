@@ -174,30 +174,36 @@ def parse_primary(filename: str):
         dxml.integer('.', 'end')
     ])
 
-    provides_processor = dxml.array(dxml.dictionary('entry', [
+    package_meta = [
         dxml.string('.', 'name'),
         dxml.string('.', 'flags', required=False, default=None),
         dxml.integer('.', 'epoch', required=False, default=None),
         dxml.string('.', 'ver', required=False, default=None),
         dxml.string('.', 'rel', required=False, default=None)
-    ], required=False), nested='provides')
+    ]
 
-    requires_processor = dxml.array(dxml.dictionary('entry', [
-        dxml.string('.', 'name'),
-        dxml.string('.', 'flags', required=False, default=None),
-        dxml.integer('.', 'epoch', required=False, default=None),
-        dxml.string('.', 'ver', required=False, default=None),
-        dxml.string('.', 'rel', required=False, default=None),
-        dxml.integer('.', 'pre', required=False, default=None)
-    ], required=False), nested='requires')
+    provides_processor = dxml.array(dxml.dictionary('entry', package_meta, required=False), nested='provides')
 
-    conflicts_processor = dxml.array(dxml.dictionary('entry', [
-        dxml.string('.', 'name'),
-        dxml.string('.', 'flags', required=False, default=None),
-        dxml.integer('.', 'epoch', required=False, default=None),
-        dxml.string('.', 'ver', required=False, default=None),
-        dxml.string('.', 'rel', required=False, default=None)
-    ], required=False), nested='conflicts')
+    requires_meta = package_meta.copy()
+    requires_meta.append(dxml.integer('.', 'pre', required=False, default=None))
+    requires_processor = dxml.array(dxml.dictionary('entry', requires_meta, required=False), nested='requires')
+
+    conflicts_processor = dxml.array(dxml.dictionary('entry', package_meta, required=False), nested='conflicts')
+
+    enhances_processor = dxml.array(dxml.dictionary('entry', package_meta, required=False), nested='enhances')
+
+    files_processor = dxml.array(dxml.dictionary('file', [
+        dxml.string('.'),
+        dxml.string('.', 'type', required=False, default='file')
+    ], required=False))
+
+    obsoletes_processor = dxml.array(dxml.dictionary('entry', package_meta, required=False), nested='obsoletes')
+
+    recommends_processor = dxml.array(dxml.dictionary('entry', package_meta, required=False), nested='recommends')
+
+    suggests_processor = dxml.array(dxml.dictionary('entry', package_meta, required=False), nested='suggests')
+
+    supplements_processor = dxml.array(dxml.dictionary('entry', package_meta, required=False), nested='supplements')
 
     format_processor = dxml.dictionary('format', [
         dxml.string('license'),
@@ -208,7 +214,13 @@ def parse_primary(filename: str):
         header_range_processor,
         provides_processor,
         requires_processor,
-        conflicts_processor
+        conflicts_processor,
+        enhances_processor,
+        files_processor,
+        obsoletes_processor,
+        recommends_processor,
+        suggests_processor,
+        supplements_processor
     ])
 
     package_processor = dxml.array(dxml.dictionary('package', [
