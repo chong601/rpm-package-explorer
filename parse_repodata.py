@@ -7,6 +7,7 @@ from rpm_package_explorer.xmlparser import parse_groups, parse_repomd, parse_pri
                                            parse_otherdata, parse_updateinfo, rearrange_data
 from rpm_package_explorer.utils import open_file, map_row_to_dict
 from rpm_package_explorer.io_handler import read_data
+from rpm_package_explorer.db_model.sqlalchemy_models import *
 
 # Create workdir before begin processing data
 WORKDIR = 'workdir'
@@ -89,15 +90,18 @@ for repo_type in parse_data:
         for binary_data in read_data(source_data):
             dest_data.write(binary_data)
         dest_data.flush()
-    processed_data.update({repo_type: dest_filepath})
+    del data['href']
+    data['source_filepath'] = source_filepath
+    data['dest_filepath'] = dest_filepath
+    processed_data.update({repo_type: data})
 # Finish processing repomd.xml
 
 # Start processing data based on processed_data variable
 try:
-    for repo_category, filename in processed_data.items():
+    for repo_category, data in processed_data.items():
         if repo_category == 'primary_db':
             # SQLite doesn't close the "normal" way, so it needs slightly insane way to really close connection.
-            with closing(sqlite3.connect(filename)) as connection, connection, closing(connection.cursor()) as cursor:
+            with closing(sqlite3.connect(data['dest_filepath'])) as connection, connection, closing(connection.cursor()) as cursor:
                 tables = [x[0] for x in cursor.execute(
                     "select tbl_name from sqlite_master where type='table'").fetchall()]
                 for table in tables:
@@ -105,14 +109,38 @@ try:
                     # TODO: process data
                     cursor.row_factory = map_row_to_dict
                     for row in cursor.fetchall():
-                        print(f'{repo_category} has {row}')
+                        row: dict
+                        if table == 'db_info':
+                            row['repo_category'] = repo_category
+                            db_object = DBInfo(**row)
+                        elif table == 'packages':
+                            db_object = Packages(**row)
+                        elif table == 'conflicts':
+                            db_object = Conflicts(**row)
+                        elif table == 'enhances':
+                            db_object = Enhances(**row)
+                        elif table == 'files':
+                            db_object = Files(**row)
+                        elif table == 'obsoletes':
+                            db_object = Obsoletes(**row)
+                        elif table == 'provides':
+                            db_object = Provides(**row)
+                        elif table == 'recommends':
+                            db_object = Recommends(**row)
+                        elif table == 'requires':
+                            db_object = Requires(**row)
+                        elif table == 'suggests':
+                            db_object = Suggests(**row)
+                        elif table == 'supplements':
+                            db_object = Supplements(**row)
+                        print(f"{repo_category} has {db_object}")
         elif repo_category == 'primary':
-            extracted_data = parse_primary(filename)
+            extracted_data = parse_primary(data['dest_filepath'])
             for d in extracted_data.values():
                 print(f'{repo_category} has {d}')
         elif repo_category == 'filelists_db':
             # SQLite doesn't close the "normal" way, so it needs slightly insane way to really close connection.
-            with closing(sqlite3.connect(filename)) as connection, connection, closing(connection.cursor()) as cursor:
+            with closing(sqlite3.connect(data['dest_filepath'])) as connection, connection, closing(connection.cursor()) as cursor:
                 cursor = connection.cursor()
                 tables = [x[0] for x in cursor.execute(
                     "select tbl_name from sqlite_master where type='table'").fetchall()]
@@ -123,12 +151,12 @@ try:
                     for row in cursor.fetchall():
                         print(f'{repo_category} has {row}')
         elif repo_category == 'filelists':
-            extracted_data = parse_filelists(filename)
+            extracted_data = parse_filelists(data['dest_filepath'])
             for d in extracted_data.values():
                 print(f'{repo_category} has {d}')
         elif repo_category == 'other_db':
             # SQLite doesn't close the "normal" way, so it needs slightly insane way to really close connection.
-            with closing(sqlite3.connect(filename)) as connection, connection, closing(connection.cursor()) as cursor:
+            with closing(sqlite3.connect(data['dest_filepath'])) as connection, connection, closing(connection.cursor()) as cursor:
                 cursor = connection.cursor()
                 tables = [x[0] for x in cursor.execute(
                     "select tbl_name from sqlite_master where type='table'").fetchall()]
@@ -139,15 +167,15 @@ try:
                     for row in cursor.fetchall():
                         print(f'{repo_category} has {row}')
         elif repo_category == 'other':
-            extracted_data = parse_otherdata(filename)
+            extracted_data = parse_otherdata(data['dest_filepath'])
             for d in extracted_data.values():
                 print(f'{repo_category} has {d}')
         elif repo_category == 'group' or repo_category == 'group_gz':
-            extracted_data = parse_groups(filename)
+            extracted_data = parse_groups(data['dest_filepath'])
             for d in extracted_data.values():
                 print(f'{repo_category} has {d}')
         elif repo_category == 'updateinfo':
-            extracted_data = parse_updateinfo(filename)
+            extracted_data = parse_updateinfo(data['dest_filepath'])
             for d in extracted_data.values():
                 print(f'{repo_category} has {d}')
         else:
