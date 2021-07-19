@@ -34,6 +34,9 @@ class DBInfo(object):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}{{{vars(self)}}}'
+
 
 @dataclass
 class Packages(object):
@@ -119,6 +122,9 @@ class Packages(object):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}{{{vars(self)}}}'
+
 
 @dataclass
 class Conflicts(object):
@@ -156,6 +162,9 @@ class Conflicts(object):
                 raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
+
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}{{{vars(self)}}}'
 
 
 @dataclass
@@ -195,6 +204,9 @@ class Enhances(object):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}{{{vars(self)}}}'
+
 
 @dataclass
 class Files(object):
@@ -232,6 +244,9 @@ class Files(object):
                 raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
+
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}{{{vars(self)}}}'
 
 
 @dataclass
@@ -271,6 +286,9 @@ class Obsoletes(object):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}{{{vars(self)}}}'
+
 
 @dataclass()
 class Provides(object):
@@ -309,6 +327,9 @@ class Provides(object):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}{{{vars(self)}}}'
+
 
 @dataclass
 class Recommends(object):
@@ -346,6 +367,9 @@ class Recommends(object):
                 raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
+
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}{{{vars(self)}}}'
 
 
 @dataclass
@@ -387,6 +411,9 @@ class Requires(object):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}{{{vars(self)}}}'
+
 
 @dataclass
 class Suggests(object):
@@ -425,6 +452,9 @@ class Suggests(object):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}{{{vars(self)}}}'
+
 
 @dataclass
 class Supplements(object):
@@ -462,3 +492,7 @@ class Supplements(object):
                 raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
+
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}{{{vars(self)}}}'
+
