@@ -496,3 +496,74 @@ class Supplements(object):
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}{{{vars(self)}}}'
 
+
+@dataclass
+class FileList(object):
+    __tablename__ = 'filelist'
+
+    filelist_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
+    pkgKey = Column(Integer)
+    dirname = Column(Text, comment='Directory name')
+    filenames = Column(Text, comment='File names separated by /')
+    filetypes = Column(Integer, comment='File type for each file in filenames')
+
+    @staticmethod
+    def _get_required_columns():
+        return ['pkgKey',
+                'dirname',
+                'filenames',
+                'filetypes']
+
+    def __init__(self, **kwargs):
+        # FUUUUUUUUUUUCK
+        if len(kwargs) == 0:
+            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
+                                 f'{", ".join(self._get_required_columns())}')
+        else:
+            missing_attr = []
+            for attr in self._get_required_columns():
+                if attr not in kwargs:
+                    missing_attr.append(attr)
+
+            if len(missing_attr) > 0:
+                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}{{{vars(self)}}}'
+
+
+@dataclass
+class ChangeLog(object):
+    __tablename__ = 'changelog'
+
+    changelog_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
+    pkgKey = Column(Integer)
+    date = Column(TIMESTAMP, comment='Changelog date')
+    changelog = Column(Text, comment='Changes')
+
+    @staticmethod
+    def _get_required_columns():
+        return ['pkgKey',
+                'date',
+                'changelog']
+
+    def __init__(self, **kwargs):
+        # FUUUUUUUUUUUCK
+        if len(kwargs) == 0:
+            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
+                                 f'{", ".join(self._get_required_columns())}')
+        else:
+            missing_attr = []
+            for attr in self._get_required_columns():
+                if attr not in kwargs:
+                    missing_attr.append(attr)
+
+            if len(missing_attr) > 0:
+                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}{{{vars(self)}}}'
