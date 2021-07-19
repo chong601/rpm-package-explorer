@@ -144,12 +144,19 @@ try:
                 cursor = connection.cursor()
                 tables = [x[0] for x in cursor.execute(
                     "select tbl_name from sqlite_master where type='table'").fetchall()]
+                # We don't need to process packages table
+                tables.remove('packages')
                 for table in tables:
                     cursor.execute(f'select * from {table}')
                     # TODO: process data
                     cursor.row_factory = map_row_to_dict
                     for row in cursor.fetchall():
-                        print(f'{repo_category} has {row}')
+                        if table == 'db_info':
+                            row['repo_category'] = repo_category
+                            db_object = DBInfo(**row)
+                        elif table == 'filelist':
+                            db_object = FileList(**row)
+                        print(f'{repo_category} has {db_object}')
         elif repo_category == 'filelists':
             extracted_data = parse_filelists(data['dest_filepath'])
             for d in extracted_data.values():
@@ -160,12 +167,19 @@ try:
                 cursor = connection.cursor()
                 tables = [x[0] for x in cursor.execute(
                     "select tbl_name from sqlite_master where type='table'").fetchall()]
+                # We don't need to process packages table
+                tables.remove('packages')
                 for table in tables:
                     cursor.execute(f'select * from {table}')
                     # TODO: process data
                     cursor.row_factory = map_row_to_dict
                     for row in cursor.fetchall():
-                        print(f'{repo_category} has {row}')
+                        if table == 'db_info':
+                            row['repo_category'] = repo_category
+                            db_object = DBInfo(**row)
+                        elif table == 'filelist':
+                            db_object = ChangeLog(**row)
+                        print(f'{repo_category} has {db_object}')
         elif repo_category == 'other':
             extracted_data = parse_otherdata(data['dest_filepath'])
             for d in extracted_data.values():
