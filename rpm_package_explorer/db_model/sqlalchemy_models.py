@@ -40,8 +40,8 @@ class Packages(object):
     """Represents the `packages` table"""
     __tablename__ = 'packages'
 
-    pkg_uuid: str = Column(Text, primary_key=True, autoincrement=True, default=uuid.uuid4)
-    pkgKey: int = Column(Integer, autoincrement=False, primary_key=True, comment='Primary key for the packages')
+    pkg_uuid: str = Column(Text, primary_key=True, default=uuid.uuid4)
+    pkgKey: int = Column(Integer, primary_key=True, comment='Primary key for the packages')
     # Also used as a package hash
     pkgId: str = Column(Text, nullable=False, comment='The package ID of the package')
     name: str = Column(Text, nullable=False, comment='Package name')
