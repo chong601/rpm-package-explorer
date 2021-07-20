@@ -5,9 +5,10 @@ import shutil
 from contextlib import closing
 from rpm_package_explorer.xmlparser import parse_groups, parse_repomd, parse_primary, parse_filelists, \
                                            parse_otherdata, parse_updateinfo, rearrange_data
-from rpm_package_explorer.utils import open_file, map_row_to_dict
+from rpm_package_explorer.utils import open_file
 from rpm_package_explorer.io_handler import read_data
 from rpm_package_explorer.db_model.sqlalchemy_models import *
+from rpm_package_explorer.db_model.utils import map_row_to_dict, DBModelFactory
 
 # Create workdir before begin processing data
 WORKDIR = 'workdir'
@@ -112,27 +113,7 @@ try:
                         row: dict
                         if table == 'db_info':
                             row['repo_category'] = repo_category
-                            db_object = DBInfo(**row)
-                        elif table == 'packages':
-                            db_object = Packages(**row)
-                        elif table == 'conflicts':
-                            db_object = Conflicts(**row)
-                        elif table == 'enhances':
-                            db_object = Enhances(**row)
-                        elif table == 'files':
-                            db_object = Files(**row)
-                        elif table == 'obsoletes':
-                            db_object = Obsoletes(**row)
-                        elif table == 'provides':
-                            db_object = Provides(**row)
-                        elif table == 'recommends':
-                            db_object = Recommends(**row)
-                        elif table == 'requires':
-                            db_object = Requires(**row)
-                        elif table == 'suggests':
-                            db_object = Suggests(**row)
-                        elif table == 'supplements':
-                            db_object = Supplements(**row)
+                        db_object = DBModelFactory(table, row)
                         print(f"{repo_category} has {db_object}")
         elif repo_category == 'primary':
             extracted_data = parse_primary(data['dest_filepath'])
@@ -151,12 +132,11 @@ try:
                     # TODO: process data
                     cursor.row_factory = map_row_to_dict
                     for row in cursor.fetchall():
+                        row: dict
                         if table == 'db_info':
                             row['repo_category'] = repo_category
-                            db_object = DBInfo(**row)
-                        elif table == 'filelist':
-                            db_object = FileList(**row)
-                        print(f'{repo_category} has {db_object}')
+                        db_object = DBModelFactory(table, row)
+                        print(f"{repo_category} has {db_object}")
         elif repo_category == 'filelists':
             extracted_data = parse_filelists(data['dest_filepath'])
             for d in extracted_data.values():
@@ -174,12 +154,11 @@ try:
                     # TODO: process data
                     cursor.row_factory = map_row_to_dict
                     for row in cursor.fetchall():
+                        row: dict
                         if table == 'db_info':
                             row['repo_category'] = repo_category
-                            db_object = DBInfo(**row)
-                        elif table == 'filelist':
-                            db_object = ChangeLog(**row)
-                        print(f'{repo_category} has {db_object}')
+                        db_object = DBModelFactory(table, row)
+                        print(f"{repo_category} has {db_object}")
         elif repo_category == 'other':
             extracted_data = parse_otherdata(data['dest_filepath'])
             for d in extracted_data.values():

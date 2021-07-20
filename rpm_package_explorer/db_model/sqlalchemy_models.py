@@ -12,25 +12,8 @@ class DBInfo(object):
     dbversion: int = Column(Integer, comment='DB version')
     checksum: str = Column(Text, comment='Hash for the XML file')
 
-    @staticmethod
-    def _get_required_columns():
-        return ['repo_category',
-                'dbversion',
-                'checksum']
-
     def __init__(self, **kwargs):
         # FUUUUUUUUUUUCK
-        if len(kwargs) == 0:
-            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
-                                 f'{", ".join(self._get_required_columns())}')
-        else:
-            missing_attr = []
-            for attr in self._get_required_columns():
-                if attr not in kwargs:
-                    missing_attr.append(attr)
-
-            if len(missing_attr) > 0:
-                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
 
@@ -69,53 +52,12 @@ class Packages(object):
     location_base: str = Column(Text)
     checksum_type: str = Column(Text)
 
-    @staticmethod
-    def _get_required_columns():
-        """Returns the required columns for this table"""
-        return ['pkgKey',
-                'pkgId',
-                'name',
-                'arch',
-                'version',
-                'epoch',
-                'release',
-                'summary',
-                'description',
-                'url',
-                'time_file',
-                'time_build',
-                'rpm_license',
-                'rpm_vendor',
-                'rpm_group',
-                'rpm_buildhost',
-                'rpm_sourcerpm',
-                'rpm_header_start',
-                'rpm_header_end',
-                'rpm_packager',
-                'size_package',
-                'size_installed',
-                'size_archive',
-                'location_href',
-                'location_base',
-                'checksum_type']
-
     def __init__(self, **kwargs):
         """Initialize package object based on the passed in keyword arguments
 
         :param **kwargs: Keyword arguments containing package data to be inserted into the database
         """
         # FUUUUUUUUUUUCK
-        if len(kwargs) == 0:
-            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
-                                 f'{", ".join(self._get_required_columns())}')
-        else:
-            missing_attr = []
-            for attr in self._get_required_columns():
-                if attr not in kwargs:
-                    missing_attr.append(attr)
-
-            if len(missing_attr) > 0:
-                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
 
@@ -132,28 +74,8 @@ class Conflicts(object):
     version = Column(Text, comment='Package version that the package conflicts with')
     release = Column(Text, comment='Package release that the package conflicts with')
 
-    @staticmethod
-    def _get_required_columns():
-        return ['pkgKey',
-                'name',
-                'flags',
-                'epoch',
-                'version',
-                'release']
-
     def __init__(self, **kwargs):
         # FUUUUUUUUUUUCK
-        if len(kwargs) == 0:
-            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
-                                 f'{", ".join(self._get_required_columns())}')
-        else:
-            missing_attr = []
-            for attr in self._get_required_columns():
-                if attr not in kwargs:
-                    missing_attr.append(attr)
-
-            if len(missing_attr) > 0:
-                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
 
@@ -170,28 +92,8 @@ class Enhances(object):
     version: str = Column(Text, comment='Package version that the package enhances')
     release: str = Column(Text, comment='Package release that the package enhances')
 
-    @staticmethod
-    def _get_required_columns():
-        return ['pkgKey',
-                'name',
-                'flags',
-                'epoch',
-                'version',
-                'release']
-
     def __init__(self, **kwargs):
         # FUUUUUUUUUUUCK
-        if len(kwargs) == 0:
-            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
-                                 f'{", ".join(self._get_required_columns())}')
-        else:
-            missing_attr = []
-            for attr in self._get_required_columns():
-                if attr not in kwargs:
-                    missing_attr.append(attr)
-
-            if len(missing_attr) > 0:
-                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
 
@@ -211,25 +113,8 @@ class Files(object):
     name: str = Column(Text, comment='File name')
     type: str = Column(Text, comment='File type')
 
-    @staticmethod
-    def _get_required_columns():
-        return ['pkgKey',
-                'name',
-                'type']
-
     def __init__(self, **kwargs):
         # FUUUUUUUUUUUCK
-        if len(kwargs) == 0:
-            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
-                                 f'{", ".join(self._get_required_columns())}')
-        else:
-            missing_attr = []
-            for attr in self._get_required_columns():
-                if attr not in kwargs:
-                    missing_attr.append(attr)
-
-            if len(missing_attr) > 0:
-                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
 
@@ -246,28 +131,8 @@ class Obsoletes(object):
     version: str = Column(Text, comment='Package version that the package enhances')
     release: str = Column(Text, comment='Package release that the package enhances')
 
-    @staticmethod
-    def _get_required_columns():
-        return ['pkgKey',
-                'name',
-                'flags',
-                'epoch',
-                'version',
-                'release']
-
     def __init__(self, **kwargs):
         # FUUUUUUUUUUUCK
-        if len(kwargs) == 0:
-            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
-                                 f'{", ".join(self._get_required_columns())}')
-        else:
-            missing_attr = []
-            for attr in self._get_required_columns():
-                if attr not in kwargs:
-                    missing_attr.append(attr)
-
-            if len(missing_attr) > 0:
-                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
 
@@ -284,28 +149,8 @@ class Provides(object):
     version: str = Column(Text, comment='Package version that the package enhances')
     release: str = Column(Text, comment='Package release that the package enhances')
 
-    @staticmethod
-    def _get_required_columns():
-        return ['pkgKey',
-                'name',
-                'flags',
-                'epoch',
-                'version',
-                'release']
-
     def __init__(self, **kwargs):
         # FUUUUUUUUUUUCK
-        if len(kwargs) == 0:
-            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
-                                 f'{", ".join(self._get_required_columns())}')
-        else:
-            missing_attr = []
-            for attr in self._get_required_columns():
-                if attr not in kwargs:
-                    missing_attr.append(attr)
-
-            if len(missing_attr) > 0:
-                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
 
@@ -322,28 +167,8 @@ class Recommends(object):
     version: str = Column(Text, comment='Package version that the package enhances')
     release: str = Column(Text, comment='Package release that the package enhances')
 
-    @staticmethod
-    def _get_required_columns():
-        return ['pkgKey',
-                'name',
-                'flags',
-                'epoch',
-                'version',
-                'release']
-
     def __init__(self, **kwargs):
         # FUUUUUUUUUUUCK
-        if len(kwargs) == 0:
-            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
-                                 f'{", ".join(self._get_required_columns())}')
-        else:
-            missing_attr = []
-            for attr in self._get_required_columns():
-                if attr not in kwargs:
-                    missing_attr.append(attr)
-
-            if len(missing_attr) > 0:
-                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
 
@@ -361,29 +186,8 @@ class Requires(object):
     release: str = Column(Text, comment='Package release that the package enhances')
     pre: bool = Column(Boolean, comment='Signals if the requirement is a prerequisite for preinstallation')
 
-    @staticmethod
-    def _get_required_columns():
-        return ['pkgKey',
-                'name',
-                'flags',
-                'epoch',
-                'version',
-                'release',
-                'pre']
-
     def __init__(self, **kwargs):
         # FUUUUUUUUUUUCK
-        if len(kwargs) == 0:
-            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
-                                 f'{", ".join(self._get_required_columns())}')
-        else:
-            missing_attr = []
-            for attr in self._get_required_columns():
-                if attr not in kwargs:
-                    missing_attr.append(attr)
-
-            if len(missing_attr) > 0:
-                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
 
@@ -400,28 +204,8 @@ class Suggests(object):
     version: str = Column(Text, comment='Package version that the package enhances')
     release: str = Column(Text, comment='Package release that the package enhances')
 
-    @staticmethod
-    def _get_required_columns():
-        return ['pkgKey',
-                'name',
-                'flags',
-                'epoch',
-                'version',
-                'release']
-
     def __init__(self, **kwargs):
         # FUUUUUUUUUUUCK
-        if len(kwargs) == 0:
-            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
-                                 f'{", ".join(self._get_required_columns())}')
-        else:
-            missing_attr = []
-            for attr in self._get_required_columns():
-                if attr not in kwargs:
-                    missing_attr.append(attr)
-
-            if len(missing_attr) > 0:
-                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
 
@@ -438,28 +222,8 @@ class Supplements(object):
     version: str = Column(Text, comment='Package version that the package enhances')
     release: str = Column(Text, comment='Package release that the package enhances')
 
-    @staticmethod
-    def _get_required_columns():
-        return ['pkgKey',
-                'name',
-                'flags',
-                'epoch',
-                'version',
-                'release']
-
     def __init__(self, **kwargs):
         # FUUUUUUUUUUUCK
-        if len(kwargs) == 0:
-            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
-                                 f'{", ".join(self._get_required_columns())}')
-        else:
-            missing_attr = []
-            for attr in self._get_required_columns():
-                if attr not in kwargs:
-                    missing_attr.append(attr)
-
-            if len(missing_attr) > 0:
-                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
 
@@ -474,26 +238,8 @@ class FileList(object):
     filenames: str = Column(Text, comment='File names separated by /')
     filetypes: str = Column(Text, comment='File type for each file in filenames')
 
-    @staticmethod
-    def _get_required_columns():
-        return ['pkgKey',
-                'dirname',
-                'filenames',
-                'filetypes']
-
     def __init__(self, **kwargs):
         # FUUUUUUUUUUUCK
-        if len(kwargs) == 0:
-            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
-                                 f'{", ".join(self._get_required_columns())}')
-        else:
-            missing_attr = []
-            for attr in self._get_required_columns():
-                if attr not in kwargs:
-                    missing_attr.append(attr)
-
-            if len(missing_attr) > 0:
-                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
 
@@ -507,24 +253,7 @@ class ChangeLog(object):
     date: int = Column(TIMESTAMP, comment='Changelog date')
     changelog: str = Column(Text, comment='Changes')
 
-    @staticmethod
-    def _get_required_columns():
-        return ['pkgKey',
-                'date',
-                'changelog']
-
     def __init__(self, **kwargs):
         # FUUUUUUUUUUUCK
-        if len(kwargs) == 0:
-            raise AttributeError(f'{self.__class__.__name__} object requires the following keywords available: '
-                                 f'{", ".join(self._get_required_columns())}')
-        else:
-            missing_attr = []
-            for attr in self._get_required_columns():
-                if attr not in kwargs:
-                    missing_attr.append(attr)
-
-            if len(missing_attr) > 0:
-                raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
