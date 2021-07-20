@@ -134,8 +134,20 @@ class DBModelFactory(object):
             self.add_data(data)
 
     def _check_missing(self, data):
-        existing_attr = vars(self.db_model)
-        required_attr = DB_REQUIRED_DATA.get(self.db_model.__class__)
+def map_row_to_dict(cursor: sqlite3.Cursor, row_data):
+    """
+    Just a neat function that converts cursor tuple-y data into dictionary
+    Used by SQLite module to map results into a dictionary
+
+    :param cursor: The cursor after a query is executed
+    :param row_data: The row data after the query is executed
+    :returns: A dictionary of the query data in the form of {column_name: row_data}
+    """
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row_data[idx]
+    return d
+
 
         if len(existing_attr) > 0:
             required_attr = [new_attr for new_attr in required_attr if existing_attr in required_attr]
