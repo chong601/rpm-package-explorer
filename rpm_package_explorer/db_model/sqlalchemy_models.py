@@ -7,10 +7,10 @@ from sqlalchemy import Text, Integer, Boolean, Column, TIMESTAMP
 class DBInfo(object):
     __tablename__ = 'db_info'
 
-    dbinfo_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
-    repo_category = Column(Text, comment='Repository category that this row represents')
-    dbversion = Column(Integer, comment='DB version')
-    checksum = Column(Text, comment='Hash for the XML file')
+    dbinfo_uuid: str = Column(Text, primary_key=True, default=uuid.uuid4)
+    repo_category: str = Column(Text, comment='Repository category that this row represents')
+    dbversion: int = Column(Integer, comment='DB version')
+    checksum: str = Column(Text, comment='Hash for the XML file')
 
     @staticmethod
     def _get_required_columns():
@@ -33,9 +33,6 @@ class DBInfo(object):
                 raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
-
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}{{{vars(self)}}}'
 
 
 @dataclass
@@ -122,21 +119,18 @@ class Packages(object):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}{{{vars(self)}}}'
-
 
 @dataclass
 class Conflicts(object):
     __tablename__ = 'conflicts'
 
-    conflict_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
-    pkgKey = Column(Integer)
-    name = Column(Text, comment='Package name')
-    flags = Column(Text, comment='Package conflict comparison flag')
-    epoch = Column(Integer, comment='Package epoch that the package conflicts with')
-    version = Column(Integer, comment='Package version that the package conflicts with')
-    release = Column(Integer, comment='Package release that the package conflicts with')
+    conflict_uuid: str = Column(Text, primary_key=True, default=uuid.uuid4)
+    pkgKey: int = Column(Integer)
+    name: str = Column(Text, comment='Package name')
+    flags: str = Column(Text, comment='Package conflict comparison flag')
+    epoch: int = Column(Integer, comment='Package epoch that the package conflicts with')
+    version = Column(Text, comment='Package version that the package conflicts with')
+    release = Column(Text, comment='Package release that the package conflicts with')
 
     @staticmethod
     def _get_required_columns():
@@ -162,22 +156,19 @@ class Conflicts(object):
                 raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
-
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}{{{vars(self)}}}'
 
 
 @dataclass
 class Enhances(object):
     __tablename__ = 'enhances'
 
-    enhance_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
-    pkgKey = Column(Integer)
-    name = Column(Text, comment='Package name')
-    flags = Column(Text, comment='Package conflict comparison flag')
-    epoch = Column(Integer, comment='Package epoch that the package enhances')
-    version = Column(Integer, comment='Package version that the package enhances')
-    release = Column(Integer, comment='Package release that the package enhances')
+    enhance_uuid: str = Column(Text, primary_key=True, default=uuid.uuid4)
+    pkgKey: int = Column(Integer)
+    name: str = Column(Text, comment='Package name')
+    flags: str = Column(Text, comment='Package conflict comparison flag')
+    epoch: int = Column(Integer, comment='Package epoch that the package enhances')
+    version: str = Column(Text, comment='Package version that the package enhances')
+    release: str = Column(Text, comment='Package release that the package enhances')
 
     @staticmethod
     def _get_required_columns():
@@ -203,9 +194,6 @@ class Enhances(object):
                 raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
-
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}{{{vars(self)}}}'
 
 
 @dataclass
@@ -218,10 +206,10 @@ class Files(object):
     """
     __tablename__ = 'files'
 
-    file_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
-    pkgKey = Column(Integer)
-    name = Column(Text, comment='File name')
-    type = Column(Text, comment='File type')
+    file_uuid: str = Column(Text, primary_key=True, default=uuid.uuid4)
+    pkgKey: int = Column(Integer)
+    name: str = Column(Text, comment='File name')
+    type: str = Column(Text, comment='File type')
 
     @staticmethod
     def _get_required_columns():
@@ -245,21 +233,18 @@ class Files(object):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}{{{vars(self)}}}'
-
 
 @dataclass
 class Obsoletes(object):
     __tablename__ = 'obsoletes'
 
     enhance_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
-    pkgKey = Column(Integer)
-    name = Column(Text, comment='Package name')
-    flags = Column(Text, comment='Package obsolete comparison flag')
-    epoch = Column(Integer, comment='Package epoch that the package obsoletes')
-    version = Column(Integer, comment='Package version that the package obsoletes')
-    release = Column(Integer, comment='Package release that the package obsoletes')
+    pkgKey: int = Column(Integer)
+    name: str = Column(Text, comment='Package name')
+    flags: str = Column(Text, comment='Package conflict comparison flag')
+    epoch: int = Column(Integer, comment='Package epoch that the package enhances')
+    version: str = Column(Text, comment='Package version that the package enhances')
+    release: str = Column(Text, comment='Package release that the package enhances')
 
     @staticmethod
     def _get_required_columns():
@@ -285,9 +270,6 @@ class Obsoletes(object):
                 raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
-
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}{{{vars(self)}}}'
 
 
 @dataclass()
@@ -295,12 +277,12 @@ class Provides(object):
     __tablename__ = 'provides'
 
     enhance_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
-    pkgKey = Column(Integer)
-    name = Column(Text, comment='Package name')
-    flags = Column(Text, comment='Package obsolete comparison flag')
-    epoch = Column(Integer, comment='Package epoch that the package provides')
-    version = Column(Integer, comment='Package version that the package provides')
-    release = Column(Integer, comment='Package release that the package provides')
+    pkgKey: int = Column(Integer)
+    name: str = Column(Text, comment='Package name')
+    flags: str = Column(Text, comment='Package conflict comparison flag')
+    epoch: int = Column(Integer, comment='Package epoch that the package enhances')
+    version: str = Column(Text, comment='Package version that the package enhances')
+    release: str = Column(Text, comment='Package release that the package enhances')
 
     @staticmethod
     def _get_required_columns():
@@ -326,9 +308,6 @@ class Provides(object):
                 raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
-
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}{{{vars(self)}}}'
 
 
 @dataclass
@@ -336,12 +315,12 @@ class Recommends(object):
     __tablename__ = 'Recommends'
 
     enhance_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
-    pkgKey = Column(Integer)
-    name = Column(Text, comment='Package name')
-    flags = Column(Text, comment='Package obsolete comparison flag')
-    epoch = Column(Integer, comment='Package epoch that the package provides')
-    version = Column(Integer, comment='Package version that the package provides')
-    release = Column(Integer, comment='Package release that the package provides')
+    pkgKey: int = Column(Integer)
+    name: str = Column(Text, comment='Package name')
+    flags: str = Column(Text, comment='Package conflict comparison flag')
+    epoch: int = Column(Integer, comment='Package epoch that the package enhances')
+    version: str = Column(Text, comment='Package version that the package enhances')
+    release: str = Column(Text, comment='Package release that the package enhances')
 
     @staticmethod
     def _get_required_columns():
@@ -368,22 +347,19 @@ class Recommends(object):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}{{{vars(self)}}}'
-
 
 @dataclass
 class Requires(object):
     __tablename__ = 'requires'
 
     enhance_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
-    pkgKey = Column(Integer)
-    name = Column(Text, comment='Package name')
-    flags = Column(Text, comment='Package obsolete comparison flag')
-    epoch = Column(Integer, comment='Package epoch that the package provides')
-    version = Column(Integer, comment='Package version that the package provides')
-    release = Column(Integer, comment='Package release that the package provides')
-    pre = Column(Boolean, comment='Signals if the requirement is a prerequisite for preinstallation')
+    pkgKey: int = Column(Integer)
+    name: str = Column(Text, comment='Package name')
+    flags: str = Column(Text, comment='Package conflict comparison flag')
+    epoch: int = Column(Integer, comment='Package epoch that the package enhances')
+    version: str = Column(Text, comment='Package version that the package enhances')
+    release: str = Column(Text, comment='Package release that the package enhances')
+    pre: bool = Column(Boolean, comment='Signals if the requirement is a prerequisite for preinstallation')
 
     @staticmethod
     def _get_required_columns():
@@ -411,21 +387,18 @@ class Requires(object):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}{{{vars(self)}}}'
-
 
 @dataclass
 class Suggests(object):
     __tablename__ = 'Suggests'
 
     enhance_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
-    pkgKey = Column(Integer)
-    name = Column(Text, comment='Package name')
-    flags = Column(Text, comment='Package obsolete comparison flag')
-    epoch = Column(Integer, comment='Package epoch that the package provides')
-    version = Column(Integer, comment='Package version that the package provides')
-    release = Column(Integer, comment='Package release that the package provides')
+    pkgKey: int = Column(Integer)
+    name: str = Column(Text, comment='Package name')
+    flags: str = Column(Text, comment='Package conflict comparison flag')
+    epoch: int = Column(Integer, comment='Package epoch that the package enhances')
+    version: str = Column(Text, comment='Package version that the package enhances')
+    release: str = Column(Text, comment='Package release that the package enhances')
 
     @staticmethod
     def _get_required_columns():
@@ -451,9 +424,6 @@ class Suggests(object):
                 raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
-
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}{{{vars(self)}}}'
 
 
 @dataclass
@@ -461,12 +431,12 @@ class Supplements(object):
     __tablename__ = 'supplements'
 
     enhance_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
-    pkgKey = Column(Integer)
-    name = Column(Text, comment='Package name')
-    flags = Column(Text, comment='Package obsolete comparison flag')
-    epoch = Column(Integer, comment='Package epoch that the package provides')
-    version = Column(Integer, comment='Package version that the package provides')
-    release = Column(Integer, comment='Package release that the package provides')
+    pkgKey: int = Column(Integer)
+    name: str = Column(Text, comment='Package name')
+    flags: str = Column(Text, comment='Package conflict comparison flag')
+    epoch: int = Column(Integer, comment='Package epoch that the package enhances')
+    version: str = Column(Text, comment='Package version that the package enhances')
+    release: str = Column(Text, comment='Package release that the package enhances')
 
     @staticmethod
     def _get_required_columns():
@@ -493,19 +463,16 @@ class Supplements(object):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}{{{vars(self)}}}'
-
 
 @dataclass
 class FileList(object):
     __tablename__ = 'filelist'
 
-    filelist_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
-    pkgKey = Column(Integer)
-    dirname = Column(Text, comment='Directory name')
-    filenames = Column(Text, comment='File names separated by /')
-    filetypes = Column(Integer, comment='File type for each file in filenames')
+    filelist_uuid: str = Column(Text, primary_key=True, default=uuid.uuid4)
+    pkgKey: int = Column(Integer)
+    dirname: str = Column(Text, comment='Directory name')
+    filenames: str = Column(Text, comment='File names separated by /')
+    filetypes: str = Column(Text, comment='File type for each file in filenames')
 
     @staticmethod
     def _get_required_columns():
@@ -530,18 +497,15 @@ class FileList(object):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}{{{vars(self)}}}'
-
 
 @dataclass
 class ChangeLog(object):
     __tablename__ = 'changelog'
 
-    changelog_uuid = Column(Text, primary_key=True, default=uuid.uuid4)
-    pkgKey = Column(Integer)
-    date = Column(TIMESTAMP, comment='Changelog date')
-    changelog = Column(Text, comment='Changes')
+    changelog_uuid: str = Column(Text, primary_key=True, default=uuid.uuid4)
+    pkgKey: int = Column(Integer)
+    date: int = Column(TIMESTAMP, comment='Changelog date')
+    changelog: str = Column(Text, comment='Changes')
 
     @staticmethod
     def _get_required_columns():
@@ -564,6 +528,3 @@ class ChangeLog(object):
                 raise AttributeError(f'Required attributes are missing: {", ".join(missing_attr)}')
         for k, v in kwargs.items():
             setattr(self, k, v)
-
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}{{{vars(self)}}}'
