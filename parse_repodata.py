@@ -7,7 +7,6 @@ from rpm_package_explorer.xmlparser import parse_groups, parse_repomd, parse_pri
                                            parse_otherdata, parse_updateinfo, rearrange_data
 from rpm_package_explorer.utils import open_file
 from rpm_package_explorer.io_handler import read_data
-from rpm_package_explorer.db_model.sqlalchemy_models import *
 from rpm_package_explorer.db_model.utils import map_row_to_dict, DBModelFactory
 
 # Create workdir before begin processing data
