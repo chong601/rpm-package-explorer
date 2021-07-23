@@ -358,4 +358,103 @@ def parse_primary_new(filename: str):
     ]), nested='metadata')
     root_dictionary.update({'packages': dxml.parse_from_file(package_processor, filename)})
 
+    # BEGIN copypaste
+    conflicts_processor = dxml.array(dxml.dictionary('package', [
+        dxml.string('checksum', alias='pkgId'),
+        dxml.array(dxml.dictionary('entry', [
+            dxml.string('.', 'name'),
+            dxml.string('.', 'flags', required=False, default=None),
+            dxml.integer('.', 'epoch', required=False, default=None),
+            dxml.string('.', 'ver', required=False, alias='version', default=None),
+            dxml.string('.', 'rel', required=False, alias='release', default=None)
+        ], required=False), nested='format/conflicts', alias='conflicts', omit_empty=True)
+    ]), nested='metadata')
+    root_dictionary.update({'conflicts': dxml.parse_from_file(conflicts_processor, filename)})
+
+    enhances_processor = dxml.array(dxml.dictionary('package', [
+        dxml.string('checksum', alias='pkgId'),
+        dxml.array(dxml.dictionary('entry', [
+            dxml.string('.', 'name'),
+            dxml.string('.', 'flags', required=False, default=None),
+            dxml.integer('.', 'epoch', required=False, default=None),
+            dxml.string('.', 'ver', required=False, alias='version', default=None),
+            dxml.string('.', 'rel', required=False, alias='release', default=None)
+        ], required=False), nested='format/enhances', alias='enhances', omit_empty=True)
+    ]), nested='metadata')
+    root_dictionary.update({'enhances': dxml.parse_from_file(enhances_processor, filename)})
+
+    obsoletes_processor = dxml.array(dxml.dictionary('package', [
+        dxml.string('checksum', alias='pkgId'),
+        dxml.array(dxml.dictionary('entry', [
+            dxml.string('.', 'name'),
+            dxml.string('.', 'flags', required=False, default=None),
+            dxml.integer('.', 'epoch', required=False, default=None),
+            dxml.string('.', 'ver', required=False, alias='version', default=None),
+            dxml.string('.', 'rel', required=False, alias='release', default=None)
+        ], required=False), nested='format/obsoletes', alias='obsoletes', omit_empty=True)
+    ]), nested='metadata')
+    root_dictionary.update({'obsoletes': dxml.parse_from_file(obsoletes_processor, filename)})
+
+    provides_processor = dxml.array(dxml.dictionary('package', [
+        dxml.string('checksum', alias='pkgId'),
+        dxml.array(dxml.dictionary('entry', [
+            dxml.string('.', 'name'),
+            dxml.string('.', 'flags', required=False, default=None),
+            dxml.integer('.', 'epoch', required=False, default=None),
+            dxml.string('.', 'ver', required=False, alias='version', default=None),
+            dxml.string('.', 'rel', required=False, alias='release', default=None)
+        ], required=False), nested='format/provides', alias='provides', omit_empty=True)
+    ]), nested='metadata')
+    root_dictionary.update({'provides': dxml.parse_from_file(provides_processor, filename)})
+
+    recommends_processor = dxml.array(dxml.dictionary('package', [
+        dxml.string('checksum', alias='pkgId'),
+        dxml.array(dxml.dictionary('entry', [
+            dxml.string('.', 'name'),
+            dxml.string('.', 'flags', required=False, default=None),
+            dxml.integer('.', 'epoch', required=False, default=None),
+            dxml.string('.', 'ver', required=False, alias='version', default=None),
+            dxml.string('.', 'rel', required=False, alias='release', default=None)
+        ], required=False), nested='format/recommends', alias='recommends', omit_empty=True)
+    ]), nested='metadata')
+    root_dictionary.update({'recommends': dxml.parse_from_file(recommends_processor, filename)})
+
+    requires_processor = dxml.array(dxml.dictionary('package', [
+        dxml.string('checksum', alias='pkgId'),
+        dxml.array(dxml.dictionary('entry', [
+            dxml.string('.', 'name'),
+            dxml.string('.', 'flags', required=False, default=None),
+            dxml.integer('.', 'epoch', required=False, default=None),
+            dxml.string('.', 'ver', required=False, alias='version', default=None),
+            dxml.string('.', 'rel', required=False, alias='release', default=None),
+            dxml.integer('.', 'pre', required=False, default=0)
+        ], required=False), nested='format/requires', alias='requires', omit_empty=True)
+    ]), nested='metadata')
+    root_dictionary.update({'requires': dxml.parse_from_file(requires_processor, filename)})
+
+    suggests_processor = dxml.array(dxml.dictionary('package', [
+        dxml.string('checksum', alias='pkgId'),
+        dxml.array(dxml.dictionary('entry', [
+            dxml.string('.', 'name'),
+            dxml.string('.', 'flags', required=False, default=None),
+            dxml.integer('.', 'epoch', required=False, default=None),
+            dxml.string('.', 'ver', required=False, alias='version', default=None),
+            dxml.string('.', 'rel', required=False, alias='release', default=None)
+        ], required=False), nested='format/suggests', alias='suggests', omit_empty=True)
+    ]), nested='metadata')
+    root_dictionary.update({'suggests': dxml.parse_from_file(suggests_processor, filename)})
+
+    supplements_processor = dxml.array(dxml.dictionary('package', [
+        dxml.string('checksum', alias='pkgId'),
+        dxml.array(dxml.dictionary('entry', [
+            dxml.string('.', 'name'),
+            dxml.string('.', 'flags', required=False, default=None),
+            dxml.integer('.', 'epoch', required=False, default=None),
+            dxml.string('.', 'ver', required=False, alias='version', default=None),
+            dxml.string('.', 'rel', required=False, alias='release', default=None)
+        ], required=False), nested='format/supplements', alias='supplements', omit_empty=True)
+    ]), nested='metadata')
+    root_dictionary.update({'supplements': dxml.parse_from_file(supplements_processor, filename)})
+    # END copypaste
+
     return root_dictionary
