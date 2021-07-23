@@ -28,6 +28,17 @@ It is not possible to bring this with the app as it requires compiling from sour
 
 It's easier (for now) to just reimplement those that I need to use by clean-room-ish reverse-engineering.
 
+# Planned version support
+Anything RPM that uses `repodata` as package metadata will be supported.
+
+- CentOS: 3.7 and above
+- Fedora: 2 and above
+- Rocky Linux: 8.3 and above
+- Alma Linux: 8.3 and above
+- RHEL: Probably not, don't think I can get any repodata from them
+
+Currently supported OS repository data will be prioritized first.
+
 # How can I help with this project?
 There are multiple ways you can help with this project.
 
