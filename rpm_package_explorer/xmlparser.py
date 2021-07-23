@@ -1,5 +1,5 @@
 import declxml as dxml
-from rpm_package_explorer.utils import open_file
+from .utils import open_file
 
 
 def parse_repomd(filename: str):
@@ -308,3 +308,54 @@ def parse_groups(filename: str):
 
     comps_processor = dxml.dictionary('comps', [group_processor, category_processor, environment_processor])
     return dxml.parse_from_file(comps_processor, new_filename)
+
+
+def parse_primary_new(filename: str):
+    """
+    Parse primary.xml using new approach of parsing data by database model
+
+    :param filename: The filename for primary.xml
+    :returns: A dictionary containing parsed data
+    """
+    # # Fuck XML.
+    # # Also, fuck primary.xml.
+
+    # Alright, new approach, new way, and probably the **best** way to work with XML.
+    # Downside of this approach is it is required to parse file repeatedly
+    # Maybe I will use the _proper_ way by combining all processor into an array and iterate
+    # through the processor array
+
+    # Root dictionary to hold all parsed data.
+    root_dictionary = {}
+
+    # Packages database model parsing
+    package_processor = dxml.array(dxml.dictionary('package', [
+        dxml.string('checksum', alias='pkgId'),
+        dxml.string('name'),
+        dxml.string('arch'),
+        dxml.string('version', 'ver', alias='version'),
+        dxml.integer('version', 'epoch', alias='epoch'),
+        dxml.string('version', 'rel', alias='release'),
+        dxml.string('summary'),
+        dxml.string('description'),
+        dxml.string('url'),
+        dxml.integer('time', 'file', alias='time_file'),
+        dxml.integer('time', 'build', alias='time_build'),
+        dxml.string('format/license', alias='rpm_license'),
+        dxml.string('format/vendor', alias='rpm_vendor'),
+        dxml.string('format/group', alias='rpm_group'),
+        dxml.string('format/buildhost', alias='rpm_buildhost'),
+        dxml.string('format/sourcerpm', alias='rpm_suorcerpm'),
+        dxml.integer('format/header-range', 'start', alias='rpm_header_start'),
+        dxml.integer('format/header-range', 'end', alias='rpm_header_end'),
+        dxml.string('packager', alias='rpm_packager'),
+        dxml.integer('size', 'package', alias='size_package'),
+        dxml.integer('size', 'installed', alias='size_installed'),
+        dxml.integer('size', 'archive', alias='size_archive'),
+        dxml.string('location', 'href', alias='location_href'),
+        dxml.string('location', 'base', alias='location_base', default=None, required=False),
+        dxml.string('checksum', 'type', alias='checksum_type')
+    ]), nested='metadata')
+    root_dictionary.update({'packages': dxml.parse_from_file(package_processor, filename)})
+
+    return root_dictionary
