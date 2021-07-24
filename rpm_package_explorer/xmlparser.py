@@ -55,24 +55,44 @@ def rearrange_data_merge_pkgid(dict_data: dict, key_name: str):
     """
     Merge package conflicts/enhances/obsoletes/provides/recommends/requires/suggests/supplements
     pkgId into each row of data
+    Assume the dict_data is as below:
+    {
+        'suggests': {'pkgId': 'blah', suggests:[{'pkgdata: 'blah'}]}
+    }
+
+    Assuming the key_name is 'pkgId', dict_data will be modified to the following:
+    {
+        'suggests': [{'pkgdata: 'blah', 'pkgId': 'blah'}]
+    }
+
+    :param dict_data:
+    :param key_name:
+    :returns: Dictionary data with munged data layout
     """
     # I have no idea what does this code works, but I know it will be useful at some point!
     for rk, rv in dict_data.items():
         rk: str
         rv: Union[str, list]
         pkgId = None
+        # Skip packages; they're already well-formed for database model ingestion
         if rk == 'packages':
             pass
         else:
+            new_list = []
             for cd in rv:
                 cd: dict
                 pkgId = cd[key_name]
                 del cd[key_name]
                 for k in cd.keys():
                     il = cd.get(k)
-                    for id in il:
-                        id.update({key_name: pkgId})
-                    print(il)
+                    if len(il):
+                        for id in il:
+                            id: dict
+                            id.update({key_name: pkgId})
+                            new_list.append(id)
+                    else:
+                        continue
+            dict_data[rk] = new_list
     return dict_data
 
 
@@ -371,7 +391,7 @@ def parse_primary_new(filename: str):
         dxml.string('format/vendor', alias='rpm_vendor'),
         dxml.string('format/group', alias='rpm_group'),
         dxml.string('format/buildhost', alias='rpm_buildhost'),
-        dxml.string('format/sourcerpm', alias='rpm_suorcerpm'),
+        dxml.string('format/sourcerpm', alias='rpm_sourcerpm'),
         dxml.integer('format/header-range', 'start', alias='rpm_header_start'),
         dxml.integer('format/header-range', 'end', alias='rpm_header_end'),
         dxml.string('packager', alias='rpm_packager'),
