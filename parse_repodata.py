@@ -17,7 +17,8 @@ SUPPORTED_DATABASE_VERSIONS = [10]
 PARSE_DATA = ['primary_db', 'filelists_db', 'other_db', 'primary', 'filelists', 'other', 'group',
               'group_gz', 'updateinfo']
 
-SKIP_PARSE = ['primary_db', 'other_db', 'filelists_db']
+SKIP_PARSE = ['filelists_db', 'other_db', 'primary', 'filelists', 'other', 'group',
+              'group_gz', 'updateinfo']
 
 PRIORITY = {
     'primary': ['primary_db', 'primary'],
