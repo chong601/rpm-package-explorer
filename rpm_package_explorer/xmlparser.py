@@ -1,3 +1,4 @@
+from typing import Union
 import declxml as dxml
 from .utils import open_file
 
@@ -48,6 +49,31 @@ def rearrange_data(xml_dict: dict, key_name):
         new_dict.update({key: d})
 
     return new_dict
+
+
+def rearrange_data_merge_pkgid(dict_data: dict, key_name: str):
+    """
+    Merge package conflicts/enhances/obsoletes/provides/recommends/requires/suggests/supplements
+    pkgId into each row of data
+    """
+    # I have no idea what does this code works, but I know it will be useful at some point!
+    for rk, rv in dict_data.items():
+        rk: str
+        rv: Union[str, list]
+        pkgId = None
+        if rk == 'packages':
+            pass
+        else:
+            for cd in rv:
+                cd: dict
+                pkgId = cd[key_name]
+                del cd[key_name]
+                for k in cd.keys():
+                    il = cd.get(k)
+                    for id in il:
+                        id.update({key_name: pkgId})
+                    print(il)
+    return dict_data
 
 
 def parse_filelists(filename: str):
