@@ -187,107 +187,6 @@ def parse_updateinfo(filename: str):
     return dxml.parse_from_file(updates_processor, filename)
 
 
-def parse_primary(filename: str):
-    """Parse primary XML data and returns it in Python dictionary form"""
-    version_processor = dxml.dictionary('version', [
-        dxml.integer('.', 'epoch', alias='epoch'),
-        dxml.string('.', 'ver', alias='ver'),
-        dxml.string('.', 'rel', alias='rel')
-    ])
-
-    checksum_processor = dxml.dictionary('checksum', [
-        dxml.string('.', 'type', alias='type'),
-        dxml.string('.', alias='pkgid')
-    ])
-
-    time_processor = dxml.dictionary('time', [
-        dxml.integer('.', 'file', 'file'),
-        dxml.integer('.', 'build')
-    ])
-
-    size_processor = dxml.dictionary('size', [
-        dxml.integer('.', 'package'),
-        dxml.integer('.', 'installed'),
-        dxml.integer('.', 'archive')
-    ])
-
-    location_processor = dxml.dictionary('location', [
-        dxml.string('.', 'href')
-    ])
-
-    header_range_processor = dxml.dictionary('header-range', [
-        dxml.integer('.', 'start'),
-        dxml.integer('.', 'end')
-    ])
-
-    package_meta = [
-        dxml.string('.', 'name'),
-        dxml.string('.', 'flags', required=False, default=None),
-        dxml.integer('.', 'epoch', required=False, default=None),
-        dxml.string('.', 'ver', required=False, default=None),
-        dxml.string('.', 'rel', required=False, default=None)
-    ]
-
-    provides_processor = dxml.array(dxml.dictionary('entry', package_meta, required=False), nested='provides')
-
-    requires_meta = package_meta.copy()
-    requires_meta.append(dxml.integer('.', 'pre', required=False, default=None))
-    requires_processor = dxml.array(dxml.dictionary('entry', requires_meta, required=False), nested='requires')
-
-    conflicts_processor = dxml.array(dxml.dictionary('entry', package_meta, required=False), nested='conflicts')
-
-    enhances_processor = dxml.array(dxml.dictionary('entry', package_meta, required=False), nested='enhances')
-
-    files_processor = dxml.array(dxml.dictionary('file', [
-        dxml.string('.'),
-        dxml.string('.', 'type', required=False, default='file')
-    ], required=False))
-
-    obsoletes_processor = dxml.array(dxml.dictionary('entry', package_meta, required=False), nested='obsoletes')
-
-    recommends_processor = dxml.array(dxml.dictionary('entry', package_meta, required=False), nested='recommends')
-
-    suggests_processor = dxml.array(dxml.dictionary('entry', package_meta, required=False), nested='suggests')
-
-    supplements_processor = dxml.array(dxml.dictionary('entry', package_meta, required=False), nested='supplements')
-
-    format_processor = dxml.dictionary('format', [
-        dxml.string('license'),
-        dxml.string('vendor'),
-        dxml.string('group'),
-        dxml.string('buildhost'),
-        dxml.string('sourcerpm'),
-        header_range_processor,
-        provides_processor,
-        requires_processor,
-        conflicts_processor,
-        enhances_processor,
-        files_processor,
-        obsoletes_processor,
-        recommends_processor,
-        suggests_processor,
-        supplements_processor
-    ])
-
-    package_processor = dxml.array(dxml.dictionary('package', [
-        dxml.string('name'),
-        dxml.string('arch'),
-        version_processor,
-        checksum_processor,
-        dxml.string('summary'),
-        dxml.string('description'),
-        dxml.string('packager'),
-        dxml.string('url'),
-        time_processor,
-        size_processor,
-        location_processor,
-        format_processor
-    ]))
-
-    metadata_processor = dxml.dictionary('metadata', [package_processor])
-    return dxml.parse_from_file(metadata_processor, filename)
-
-
 def parse_groups(filename: str):
     """
     Parse comps data and returns it in Python dictionary form
@@ -404,103 +303,20 @@ def parse_primary_new(filename: str):
     ]), nested='metadata')
     root_dictionary.update({'packages': dxml.parse_from_file(package_processor, filename)})
 
-    # BEGIN copypaste
-    conflicts_processor = dxml.array(dxml.dictionary('package', [
-        dxml.string('checksum', alias='pkgId'),
-        dxml.array(dxml.dictionary('entry', [
-            dxml.string('.', 'name'),
-            dxml.string('.', 'flags', required=False, default=None),
-            dxml.integer('.', 'epoch', required=False, default=None),
-            dxml.string('.', 'ver', required=False, alias='version', default=None),
-            dxml.string('.', 'rel', required=False, alias='release', default=None)
-        ], required=False), nested='format/conflicts', alias='conflicts', omit_empty=True)
-    ]), nested='metadata')
-    root_dictionary.update({'conflicts': dxml.parse_from_file(conflicts_processor, filename)})
+    parse_array = ['conflicts', 'enhances', 'files', 'obsoletes', 'provides', 'recommends', 'requires',
+                   'suggests', 'supplements']
 
-    enhances_processor = dxml.array(dxml.dictionary('package', [
-        dxml.string('checksum', alias='pkgId'),
-        dxml.array(dxml.dictionary('entry', [
-            dxml.string('.', 'name'),
-            dxml.string('.', 'flags', required=False, default=None),
-            dxml.integer('.', 'epoch', required=False, default=None),
-            dxml.string('.', 'ver', required=False, alias='version', default=None),
-            dxml.string('.', 'rel', required=False, alias='release', default=None)
-        ], required=False), nested='format/enhances', alias='enhances', omit_empty=True)
-    ]), nested='metadata')
-    root_dictionary.update({'enhances': dxml.parse_from_file(enhances_processor, filename)})
-
-    obsoletes_processor = dxml.array(dxml.dictionary('package', [
-        dxml.string('checksum', alias='pkgId'),
-        dxml.array(dxml.dictionary('entry', [
-            dxml.string('.', 'name'),
-            dxml.string('.', 'flags', required=False, default=None),
-            dxml.integer('.', 'epoch', required=False, default=None),
-            dxml.string('.', 'ver', required=False, alias='version', default=None),
-            dxml.string('.', 'rel', required=False, alias='release', default=None)
-        ], required=False), nested='format/obsoletes', alias='obsoletes', omit_empty=True)
-    ]), nested='metadata')
-    root_dictionary.update({'obsoletes': dxml.parse_from_file(obsoletes_processor, filename)})
-
-    provides_processor = dxml.array(dxml.dictionary('package', [
-        dxml.string('checksum', alias='pkgId'),
-        dxml.array(dxml.dictionary('entry', [
-            dxml.string('.', 'name'),
-            dxml.string('.', 'flags', required=False, default=None),
-            dxml.integer('.', 'epoch', required=False, default=None),
-            dxml.string('.', 'ver', required=False, alias='version', default=None),
-            dxml.string('.', 'rel', required=False, alias='release', default=None)
-        ], required=False), nested='format/provides', alias='provides', omit_empty=True)
-    ]), nested='metadata')
-    root_dictionary.update({'provides': dxml.parse_from_file(provides_processor, filename)})
-
-    recommends_processor = dxml.array(dxml.dictionary('package', [
-        dxml.string('checksum', alias='pkgId'),
-        dxml.array(dxml.dictionary('entry', [
-            dxml.string('.', 'name'),
-            dxml.string('.', 'flags', required=False, default=None),
-            dxml.integer('.', 'epoch', required=False, default=None),
-            dxml.string('.', 'ver', required=False, alias='version', default=None),
-            dxml.string('.', 'rel', required=False, alias='release', default=None)
-        ], required=False), nested='format/recommends', alias='recommends', omit_empty=True)
-    ]), nested='metadata')
-    root_dictionary.update({'recommends': dxml.parse_from_file(recommends_processor, filename)})
-
-    requires_processor = dxml.array(dxml.dictionary('package', [
-        dxml.string('checksum', alias='pkgId'),
-        dxml.array(dxml.dictionary('entry', [
-            dxml.string('.', 'name'),
-            dxml.string('.', 'flags', required=False, default=None),
-            dxml.integer('.', 'epoch', required=False, default=None),
-            dxml.string('.', 'ver', required=False, alias='version', default=None),
-            dxml.string('.', 'rel', required=False, alias='release', default=None),
-            dxml.integer('.', 'pre', required=False, default=0)
-        ], required=False), nested='format/requires', alias='requires', omit_empty=True)
-    ]), nested='metadata')
-    root_dictionary.update({'requires': dxml.parse_from_file(requires_processor, filename)})
-
-    suggests_processor = dxml.array(dxml.dictionary('package', [
-        dxml.string('checksum', alias='pkgId'),
-        dxml.array(dxml.dictionary('entry', [
-            dxml.string('.', 'name'),
-            dxml.string('.', 'flags', required=False, default=None),
-            dxml.integer('.', 'epoch', required=False, default=None),
-            dxml.string('.', 'ver', required=False, alias='version', default=None),
-            dxml.string('.', 'rel', required=False, alias='release', default=None)
-        ], required=False), nested='format/suggests', alias='suggests', omit_empty=True)
-    ]), nested='metadata')
-    root_dictionary.update({'suggests': dxml.parse_from_file(suggests_processor, filename)})
-
-    supplements_processor = dxml.array(dxml.dictionary('package', [
-        dxml.string('checksum', alias='pkgId'),
-        dxml.array(dxml.dictionary('entry', [
-            dxml.string('.', 'name'),
-            dxml.string('.', 'flags', required=False, default=None),
-            dxml.integer('.', 'epoch', required=False, default=None),
-            dxml.string('.', 'ver', required=False, alias='version', default=None),
-            dxml.string('.', 'rel', required=False, alias='release', default=None)
-        ], required=False), nested='format/supplements', alias='supplements', omit_empty=True)
-    ]), nested='metadata')
-    root_dictionary.update({'supplements': dxml.parse_from_file(supplements_processor, filename)})
-    # END copypaste
-
+    for parse_name in parse_array:
+        processor = dxml.array(dxml.dictionary('package', [
+            dxml.string('checksum', alias='pkgId'),
+            dxml.array(dxml.dictionary('entry', [
+                dxml.string('.', 'name'),
+                dxml.string('.', 'flags', required=False, default=None),
+                dxml.integer('.', 'epoch', required=False, default=None),
+                dxml.string('.', 'ver', required=False, alias='version', default=None),
+                dxml.string('.', 'rel', required=False, alias='release', default=None)
+            ], required=False), nested=f'format/{parse_name}', alias=f'{parse_name}', omit_empty=True)
+        ]), nested='metadata')
+        root_dictionary.update({parse_name: dxml.parse_from_file(processor, filename)})
+    rearrange_data_merge_pkgid(root_dictionary, 'pkgId')
     return root_dictionary
