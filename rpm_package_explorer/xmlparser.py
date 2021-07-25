@@ -307,23 +307,35 @@ def parse_primary_new(filename: str):
                    'suggests', 'supplements']
 
     for parse_name in parse_array:
-        nevr_processor = [
-            dxml.string('.', 'name'),
-            dxml.string('.', 'flags', required=False, default=None),
-            dxml.integer('.', 'epoch', required=False, default=None),
-            dxml.string('.', 'ver', required=False, alias='version', default=None),
-            dxml.string('.', 'rel', required=False, alias='release', default=None)
-        ]
+        processor = None
+        if parse_name == 'files':
+            file_processor = [
+                dxml.string('.', alias='name'),
+                dxml.string('.', 'type', required=False, default='file')
+            ]
+            processor = dxml.array(dxml.dictionary('package', [
+                dxml.string('checksum', alias='pkgId'),
+                dxml.array(dxml.dictionary('file', file_processor, required=False),
+                           nested=f'format', alias=f'{parse_name}', omit_empty=True)
+            ]), nested='metadata')
+        else:
+            nevr_processor = [
+                dxml.string('.', 'name'),
+                dxml.string('.', 'flags', required=False, default=None),
+                dxml.integer('.', 'epoch', required=False, default=None),
+                dxml.string('.', 'ver', required=False, alias='version', default=None),
+                dxml.string('.', 'rel', required=False, alias='release', default=None)
+            ]
 
-        # requires require extra `pre` attribute to signal that this is a pre-requisite requirement
-        if parse_name == 'requires':
-            nevr_processor.append(dxml.integer('.', 'pre', required=False, default=0))
+            # requires require extra `pre` attribute to signal that this is a pre-requisite requirement
+            if parse_name == 'requires':
+                nevr_processor.append(dxml.integer('.', 'pre', required=False, default=0))
 
-        processor = dxml.array(dxml.dictionary('package', [
-            dxml.string('checksum', alias='pkgId'),
-            dxml.array(dxml.dictionary('entry', nevr_processor, required=False),
-                       nested=f'format/{parse_name}', alias=f'{parse_name}', omit_empty=True)
-        ]), nested='metadata')
+            processor = dxml.array(dxml.dictionary('package', [
+                dxml.string('checksum', alias='pkgId'),
+                dxml.array(dxml.dictionary('entry', nevr_processor, required=False),
+                           nested=f'format/{parse_name}', alias=f'{parse_name}', omit_empty=True)
+            ]), nested='metadata')
         root_dictionary.update({parse_name: dxml.parse_from_file(processor, filename)})
     rearrange_data_merge_pkgid(root_dictionary, 'pkgId')
     return root_dictionary
