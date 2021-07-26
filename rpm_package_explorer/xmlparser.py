@@ -1,6 +1,7 @@
 from typing import Union
 import declxml as dxml
 from .utils import open_file
+from .db_model.utils import DBModelFactory
 
 
 def parse_repomd(filename: str):
@@ -94,6 +95,16 @@ def rearrange_data_merge_pkgid(dict_data: dict, key_name: str):
                         continue
             dict_data[rk] = new_list
     return dict_data
+
+
+def convert_to_class(root_dictionary: dict):
+    for k, v in root_dictionary.items():
+        new_array = []
+        for iv in v:
+            iv: dict
+            model_factory = DBModelFactory(k, iv)
+            new_array.append(model_factory.db_model)
+        root_dictionary.update({k: new_array})
 
 
 def parse_filelists(filename: str):
@@ -337,5 +348,54 @@ def parse_primary_new(filename: str):
                            nested=f'format/{parse_name}', alias=f'{parse_name}', omit_empty=True)
             ]), nested='metadata')
         root_dictionary.update({parse_name: dxml.parse_from_file(processor, filename)})
+    # Yes, I know that these two lines are woefully inefficient.
     rearrange_data_merge_pkgid(root_dictionary, 'pkgId')
+    convert_to_class(root_dictionary)
+    return root_dictionary
+
+
+def parse_filelists_new(filename: str):
+    """
+    Parse filelists.xml using new approach of parsing data by database model
+
+    :param filename: The filename for filelists.xml
+    :returns: A dictionary containing parsed data
+    """
+    root_dictionary = {}
+
+    filelist_processor = dxml.array(dxml.dictionary('package', [
+                dxml.string('.', 'pkgid', alias='pkgId'),
+                dxml.array(dxml.dictionary('.', [
+                    dxml.string('.', alias='filename'),
+                    dxml.string('.', 'type', required=False, default='file', alias='filetype')
+                ], required=False), nested='file', alias=f'filelist')
+            ]), nested='filelists')
+    # Yes, I know that these two lines are woefully inefficient.
+    root_dictionary.update({'filelist': dxml.parse_from_file(filelist_processor, filename)})
+    rearrange_data_merge_pkgid(root_dictionary, 'pkgId')
+    convert_to_class(root_dictionary)
+    return root_dictionary
+
+
+def parse_otherdata_new(filename: str):
+    """
+    Parse otherdata.xml using new approach of parsing data by database model
+
+    :param filename: The filename for otherdata.xml
+    :returns: A dictionary containing parsed data
+    """
+    root_dictionary = {}
+
+    filelist_processor = dxml.array(dxml.dictionary('package', [
+                dxml.string('.', 'pkgid', alias='pkgId'),
+                dxml.array(dxml.dictionary('.', [
+                    dxml.string('.', 'author', alias='author'),
+                    dxml.integer('.', 'date', alias='date'),
+                    dxml.string('.', alias='changelog')
+                ], required=False), nested='changelog', alias=f'changelog')
+            ]), nested='otherdata')
+    # Yes, I know that these two lines are woefully inefficient.
+    root_dictionary.update({'changelog': dxml.parse_from_file(filelist_processor, filename)})
+    rearrange_data_merge_pkgid(root_dictionary, 'pkgId')
+    convert_to_class(root_dictionary)
     return root_dictionary
