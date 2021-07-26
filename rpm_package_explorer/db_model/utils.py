@@ -14,7 +14,7 @@ This shouldn't exist, but:
 - Flask-SQLAlchemy has issues with code suggestions when it comes to DB session queries.
 """
 import sqlite3
-from .sqlalchemy_models import *
+from .sqlalchemy_models import *  # pylint: disable=unused-wildcard-import
 
 # Dictionary that returns the database model class based on what class it's from
 DB_MODEL = {
@@ -35,94 +35,152 @@ DB_MODEL = {
 
 # A dictionary that provides the minimum set of attributes that a DB require
 DB_REQUIRED_DATA = {
-    'db_info': ['repo_category',
-                'dbversion',
-                'checksum'],
-    'packages': ['pkgKey',
-                 'pkgId',
-                 'name',
-                 'arch',
-                 'version',
-                 'epoch',
-                 'release',
-                 'summary',
-                 'description',
-                 'url',
-                 'time_file',
-                 'time_build',
-                 'rpm_license',
-                 'rpm_vendor',
-                 'rpm_group',
-                 'rpm_buildhost',
-                 'rpm_sourcerpm',
-                 'rpm_header_start',
-                 'rpm_header_end',
-                 'rpm_packager',
-                 'size_package',
-                 'size_installed',
-                 'size_archive',
-                 'location_href',
-                 'location_base',
-                 'checksum_type'],
-    'conflicts': ['pkgKey',
-                  'name',
-                  'flags',
-                  'epoch',
-                  'version',
-                  'release'],
-    'enhances': ['pkgKey',
-                 'name',
-                 'flags',
-                 'epoch',
-                 'version',
-                 'release'],
-    'files': ['pkgKey',
-              'name',
-              'type'],
-    'obsoletes': ['pkgKey',
-                  'name',
-                  'flags',
-                  'epoch',
-                  'version',
-                  'release'],
-    'provides': ['pkgKey',
-                 'name',
-                 'flags',
-                 'epoch',
-                 'version',
-                 'release'],
-    'recommends': ['pkgKey',
-                   'name',
-                   'flags',
-                   'epoch',
-                   'version',
-                   'release'],
-    'requires': ['pkgKey',
-                 'name',
-                 'flags',
-                 'epoch',
-                 'version',
-                 'release',
-                 'pre'],
-    'suggests': ['pkgKey',
-                 'name',
-                 'flags',
-                 'epoch',
-                 'version',
-                 'release'],
-    'supplements': ['pkgKey',
-                    'name',
-                    'flags',
-                    'epoch',
-                    'version',
-                    'release'],
-    'filelist': ['pkgKey',
-                 'dirname',
-                 'filenames',
-                 'filetypes'],
-    'changelog': ['pkgKey',
-                  'date',
-                  'changelog']
+    'db_info': [
+        'repo_category',
+        'dbversion',
+        'checksum'
+    ],
+    'packages': [
+        'pkgId',
+        'name',
+        'arch',
+        'version',
+        'epoch',
+        'release',
+        'summary',
+        'description',
+        'url',
+        'time_file',
+        'time_build',
+        'rpm_license',
+        'rpm_vendor',
+        'rpm_group',
+        'rpm_buildhost',
+        'rpm_sourcerpm',
+        'rpm_header_start',
+        'rpm_header_end',
+        'rpm_packager',
+        'size_package',
+        'size_installed',
+        'size_archive',
+        'location_href',
+        'location_base',
+        'checksum_type'
+    ],
+    'conflicts': [
+        'pkgId',
+        'name',
+        'flags',
+        'epoch',
+        'version',
+        'release'
+    ],
+    'enhances': [
+        'pkgId',
+        'name',
+        'flags',
+        'epoch',
+        'version',
+        'release'
+    ],
+    'files': [
+        'pkgId',
+        'name',
+        'type'
+    ],
+    'obsoletes': [
+        'pkgId',
+        'name',
+        'flags',
+        'epoch',
+        'version',
+        'release'
+    ],
+    'provides': [
+        'pkgId',
+        'name',
+        'flags',
+        'epoch',
+        'version',
+        'release'
+    ],
+    'recommends': [
+        'pkgId',
+        'name',
+        'flags',
+        'epoch',
+        'version',
+        'release'
+    ],
+    'requires': [
+        'pkgId',
+        'name',
+        'flags',
+        'epoch',
+        'version',
+        'release',
+        'pre'
+    ],
+    'suggests': [
+        'pkgId',
+        'name',
+        'flags',
+        'epoch',
+        'version',
+        'release'
+    ],
+    'supplements': [
+        'pkgId',
+        'name',
+        'flags',
+        'epoch',
+        'version',
+        'release'
+    ],
+    'filelist': [
+        'pkgId',
+        'filename',
+        'filetype'
+    ],
+    'changelog': [
+        'pkgId',
+        'author',
+        'date',
+        'changelog'
+    ]
+}
+
+PRIMARY_DB_QUERY_V10 = {
+    'conflicts': 'select p.pkgId, c.name, c.flags, c.epoch, c.version, c.release from conflicts c inner join packages p on p.pkgKey == c.pkgKey',
+    'enhances': 'select p.pkgId, e.name, e.flags, e.epoch, e.version, e.release from enhances e inner join packages p on p.pkgKey == e.pkgKey',
+    'files': 'select p.pkgId, f.name, f.type from files f inner join packages p on p.pkgKey == f.pkgKey',
+    'obsoletes': 'select p.pkgId, o.name, o.flags, o.epoch, o.version, o.release from obsoletes o inner join packages p on p.pkgKey == o.pkgKey',
+    'packages': 'select * from packages',
+    'provides': 'select p.pkgId, pr.name, pr.flags, pr.epoch, pr.version, pr.release from provides pr inner join packages p on p.pkgKey == pr.pkgKey',
+    'recommends': 'select p.pkgId, r.name, r.flags, r.epoch, r.version, r.release from recommends r inner join packages p on p.pkgKey == r.pkgKey',
+    'requires': 'select p.pkgId, r.name, r.flags, r.epoch, r.version, r.release, r.pre from requires r inner join packages p on p.pkgKey == r.pkgKey',
+    'suggests': 'select p.pkgId, s.name, s.flags, s.epoch, s.version, s.release from suggests s inner join packages p on p.pkgKey == s.pkgKey',
+    'supplements': 'select p.pkgId, s.name, s.flags, s.epoch, s.version, s.release from supplements s inner join packages p on p.pkgKey == s.pkgKey'
+}
+
+FILELISTS_DB_QUERY_V10 = {
+    'filelist': None
+}
+
+OTHER_DB_QUERY_V10 = {
+    'changelog': None
+}
+
+PRIMARY_DB_VERSION = {
+    10: PRIMARY_DB_QUERY_V10
+}
+
+FILELISTS_DB_VERSION = {
+    10: FILELISTS_DB_QUERY_V10
+}
+
+OTHER_DB_VERSION = {
+    10: OTHER_DB_QUERY_V10
 }
 
 
@@ -165,3 +223,7 @@ def map_row_to_dict(cursor: sqlite3.Cursor, row_data):
     for idx, col in enumerate(cursor.description):
         d[col[0]] = row_data[idx]
     return d
+
+
+def SQLiteDataExtraction():
+    pass
