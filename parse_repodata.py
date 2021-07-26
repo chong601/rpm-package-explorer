@@ -3,8 +3,7 @@ import sqlite3
 import shutil
 
 from contextlib import closing
-from rpm_package_explorer.xmlparser import parse_groups, parse_repomd, parse_primary, parse_filelists, \
-                                           parse_otherdata, parse_updateinfo, rearrange_data
+from rpm_package_explorer.xmlparser import parse_filelists_new, parse_groups, parse_other_new, parse_primary_new, parse_repomd, parse_updateinfo
 from rpm_package_explorer.utils import open_file
 from rpm_package_explorer.io_handler import read_data
 from rpm_package_explorer.db_model.utils import map_row_to_dict, DBModelFactory
@@ -116,7 +115,7 @@ try:
                         db_object = DBModelFactory(table, row)
                         print(f"{repo_category} has {db_object}")
         elif repo_category == 'primary':
-            extracted_data = parse_primary(data['dest_filepath'])
+            extracted_data = parse_primary_new(data['dest_filepath'])
             for d in extracted_data.values():
                 print(f'{repo_category} has {d}')
         elif repo_category == 'filelists_db':
@@ -138,7 +137,7 @@ try:
                         db_object = DBModelFactory(table, row)
                         print(f"{repo_category} has {db_object}")
         elif repo_category == 'filelists':
-            extracted_data = parse_filelists(data['dest_filepath'])
+            extracted_data = parse_filelists_new(data['dest_filepath'])
             for d in extracted_data.values():
                 print(f'{repo_category} has {d}')
         elif repo_category == 'other_db':
@@ -160,7 +159,7 @@ try:
                         db_object = DBModelFactory(table, row)
                         print(f"{repo_category} has {db_object}")
         elif repo_category == 'other':
-            extracted_data = parse_otherdata(data['dest_filepath'])
+            extracted_data = parse_other_new(data['dest_filepath'])
             for d in extracted_data.values():
                 print(f'{repo_category} has {d}')
         elif repo_category == 'group' or repo_category == 'group_gz':
